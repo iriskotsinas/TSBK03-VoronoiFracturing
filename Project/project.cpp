@@ -27,7 +27,7 @@
 		#include <stdio.h>
 		#include <GL/gl.h>
 		#include "MicroGlut.h"
-//		#include <GL/glut.h>
+		// #include <GL/glut.h>
 	#endif
 #endif
 
@@ -35,8 +35,10 @@
 #include "GL_utilities.h"
 #include "LittleOBJLoader.h"
 #include <glm/vec3.hpp> 
-#include "imgui/imgui.h"
+// #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+// #include "imgui/imgui.h"
+
 // initial width and heights
 #define W 512
 #define H 512
@@ -71,7 +73,7 @@ GLuint phongshader = 0, plaintextureshader = 0, lowpass = 0, truncate = 0, merge
 //-------------------------------------------------------------------------------------
 void init(void)
 {
-    glm::vec3 hello;
+    // glm::vec3 hello;
 	dumpInfo();  // shader info
 
 	// GL inits
@@ -104,7 +106,7 @@ void init(void)
 	viewMatrix = lookAtv(cam, point, up);
 	modelToWorldMatrix = IdentityMatrix();
 
-	glutTimerFunc(5, &OnTimer, 0);
+	// glutTimerFunc(5, &OnTimer, 0);
 
 //	zprInit(&viewMatrix, cam, point);
 }
@@ -165,8 +167,8 @@ void display(void)
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	DrawModel(squareModel, plaintextureshader, "in_Position", NULL, "in_TexCoord");
-
-	glutSwapBuffers();
+	glFlush();
+	// glutSwapBuffers();
 }
 
 void reshape(GLsizei w, GLsizei h)
@@ -227,24 +229,23 @@ void mouseDragged(int x, int y)
 //-----------------------------main-----------------------------------------------
 int main(int argc, char *argv[])
 {
-// 	glutInit(&argc, argv);
-// 
-// 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-// 	glutInitWindowSize(W, H);
-// 
-// 	glutInitContextVersion(3, 2);
-// 	GLFWwindow *window;
-// 	window = glutCreateWindow ("Render to texture with FBO");
-// 	glutDisplayFunc(display);
-// 	glutReshapeFunc(reshape);
-// 	glutMouseFunc(mouseUpDown);
-// 	glutMotionFunc(mouseDragged);
-// 	glutIdleFunc(idle);
-// 
-// 	init();
-// 	glutMainLoop();
-// 	exit(0);
-     GLFWwindow* window;
+	// glutInit(&argc, argv);
+
+	// glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+	// glutInitWindowSize(W, H);
+
+	// glutInitContextVersion(3, 2);
+	// glutCreateWindow ("Render to texture with FBO");
+	// glutDisplayFunc(display);
+	// glutReshapeFunc(reshape);
+	// glutMouseFunc(mouseUpDown);
+	// glutMotionFunc(mouseDragged);
+	// glutIdleFunc(idle);
+
+	// init();
+	// glutMainLoop();
+	// exit(0);
+    GLFWwindow* window;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -258,15 +259,19 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+	// gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+
+	init();
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        
+        display();
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        // glClear(GL_COLOR_BUFFER_BIT);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -274,7 +279,7 @@ int main(int argc, char *argv[])
         /* Poll for and process events */
         glfwPollEvents();
     }
-
+	glfwDestroyWindow(window);
     glfwTerminate();
-    return 0;
+    exit(EXIT_SUCCESS);
 }

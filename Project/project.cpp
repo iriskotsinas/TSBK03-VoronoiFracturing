@@ -8,7 +8,7 @@
 #ifdef __APPLE__
 // Mac
 	#include <OpenGL/gl3.h>
-	#include "MicroGlut.h"
+//	#include "MicroGlut.h"
 	// uses framework Cocoa
 #else
 	#ifdef WIN32
@@ -31,7 +31,6 @@
 // #include "LittleOBJLoader.h"
 #include <glm/vec3.hpp> 
 // #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 // #include "imgui/imgui.h"
 
 // Include GLFW

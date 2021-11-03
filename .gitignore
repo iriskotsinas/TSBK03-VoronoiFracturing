@@ -3,3 +3,5 @@ Project/project
 Project/.DS_Store
 Project/tsbk03_project.xcodeproj/
 .DS_Store
+Project/*.o
+Project/src/*.o

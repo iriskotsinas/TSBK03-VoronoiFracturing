@@ -27,6 +27,9 @@ class Shader
         void SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3);
         void SetUniform1f(const std::string& name, float value);
 
+        unsigned int getProgram(){
+            return m_RendererID;
+        } 
     private:
         int GetUniformLocation(const std::string& name);
         struct ShaderProgramSource ParseShader(const std::string& filepath);

@@ -29,7 +29,6 @@
 // #include "VectorUtils3.h"
 // #include "GL_utilities.h"
 // #include "LittleOBJLoader.h"
-#include <glm/vec3.hpp> 
 // #include <glad/glad.h>
 // #include "imgui/imgui.h"
 
@@ -43,7 +42,14 @@
 #include "src/IndexBuffer.h"
 #include "src/Shader.h"
 #include "src/Renderer.h"
+#include "src/Scene.h"
+#include "src/HalfEdgeMesh.h"
+#include "src/VoronoiDiagram.h"
+// #include "src/Geometry.h"
 
+#include "jc_voronoi.h"
+const int WIDTH = 1024;
+const int HEIGHT = 768;
 GLFWwindow* InitWindow()
 {
     // Initialise GLFW
@@ -61,7 +67,7 @@ GLFWwindow* InitWindow()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-    GLFWwindow* window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow( WIDTH, HEIGHT, "Voronoi Fracturing TSBK03", NULL, NULL);
     if( window == NULL ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         getchar();
@@ -90,6 +96,10 @@ GLFWwindow* InitWindow()
 
 int main( void )
 {
+    VoronoiDiagram vd(100, 100);
+    vd.SamplePoints(10);
+
+
     GLFWwindow* window = InitWindow();
     if (!window)
         return -1;
@@ -107,44 +117,42 @@ int main( void )
     };
 
     {
-        VertexArray va;
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float));
-        IndexBuffer ib(indices, 6);
+        // VertexArray va;
+        // VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+        // IndexBuffer ib(indices, 6);
 
-        VertexBufferLayout layout;
-        layout.AddFloat(2);
+        // VertexBufferLayout layout;
+        // layout.AddFloat(2);
 
-        va.AddBuffer(vb, layout);
+        // va.AddBuffer(vb, layout);
 
-        Shader shader("src/res/shaders/Basic.shader");
-        shader.Bind();
-
-        float red = 0.0f;
-        float step = 0.05f;
-
-        Renderer renderer;
-
+        // Shader shader("src/res/shaders/Basic.shader");
+        // shader.Bind();
+        // Renderer renderer;
+        HalfEdgeMesh* plane = new HalfEdgeMesh(glm::vec4(1.0f, 1.0f, 1.0f,1.0f), "plane");
+        plane->generatePlane(1.0f, 1.0f);
+        plane->initialize(glm::vec3(2.f,2.f,2.f));
+        Scene* scene = new Scene();
+        scene->addGeometry(plane);
+        scene->initialize();
         do {
-            renderer.Clear();
-            shader.Bind();
-            shader.SetUniform4f("u_Color", red, 0.3, 0.8, 1.0);
-
-            renderer.Draw(va, ib, shader);
-
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // renderer.Clear();
+            // shader.Bind();
+            // shader.SetUniform4f("u_Color", 1.0, 1.0, 1.0, 1.0);
+            // glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+            // renderer.Draw(va, ib, shader);
+            scene->render();
             // Swap buffers
             glfwSwapBuffers(window);
             glfwPollEvents();
 
-            // increment red
-            if (red < 0.0f || red > 1.0f)
-                step *= -1.0;
-            red += step;
 
         } // Check if the ESC key was pressed or the window was closed
         while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
                 glfwWindowShouldClose(window) == 0 );
+    // delete scene;
     }
-
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
 

@@ -1,6 +1,6 @@
 #include "HalfEdgeMesh.h"
 
-HalfEdgeMesh::HalfEdgeMesh(glm::vec4 c, std::string s)
+HalfEdgeMesh::HalfEdgeMesh(std::string s)
     :mObjName(s) {
 
     mTransMat = glm::mat4(1.0f);
@@ -9,10 +9,12 @@ HalfEdgeMesh::HalfEdgeMesh(glm::vec4 c, std::string s)
 }
 void HalfEdgeMesh::generatePlane(float width, float height) {
 
-    glm::vec3 v0 = glm::vec3(-width, 0, -height);
-    glm::vec3 v1 = glm::vec3(width, 0, height);
-    glm::vec3 v2 = glm::vec3(-width, 0, height);
-    glm::vec3 v3 = glm::vec3(width, 0, -height);
+    glm::vec3 v0 = {-width, -height, 0.0f};
+    glm::vec3 v1 = {width, height, 0.0f};
+    glm::vec3 v2 = {-width, height, 0.0f};
+    glm::vec3 v3 = {width, -height, 0.0f};
+
+    std::cout << "\nAdd vertex ...\n\n";
 
     // Add vertices and normals
     addVertex(v0);
@@ -58,8 +60,8 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
     // std::cout << "\t --- \t Volume: " << volume() << "\t --- \t" << std::endl;
 
-    glGenVertexArrays(1, &vertexArrayID);
-    glBindVertexArray(vertexArrayID);
+    GLCall(glGenVertexArrays(1, &vertexArrayID));
+    GLCall(glBindVertexArray(vertexArrayID));
     // VertexArray va;
     // VertexBuffer vb(positions, 4 * 2 * sizeof(float));
     // IndexBuffer ib(indices, 6);
@@ -88,20 +90,20 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
     // glUniform4f(lightPosLoc, lightPosition[0], lightPosition[1], lightPosition[2], 1.0f);
 
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW);
+    GLCall(glGenBuffers(1, &vertexBuffer));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW));
 
     // // 1st attribute buffer : vertices
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0,                          // attribute 0. I.e. layout 0 in shader
+    GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Position")));
+    GLCall(glVertexAttribPointer(
+        glGetAttribLocation(shaderProgram, "in_Position"),                          // attribute 0. I.e. layout 0 in shader
         3,                          // size
         GL_FLOAT,                   // type
         GL_FALSE,                   // normalized?
         0,                          // stride
         reinterpret_cast<void*>(0)  // array buffer offset
-    );
+    ));
 
 
     // glGenBuffers(1, &normalBuffer);
@@ -123,9 +125,9 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
 
     // Use shader
-    glUseProgram(shaderProgram);
-    glDisable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    GLCall(glUseProgram(shaderProgram));
+    //glDisable( GL_BLEND );
+    //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     
     // glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP](0, 0));
     // glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV](0, 0));
@@ -139,23 +141,23 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
     // glUniform1f(shinynessLoc, mMaterial.shinyness);
 
     // Rebind the buffer data, vertices are now updated
-    glBindVertexArray(vertexArrayID);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW);
+    GLCall(glBindVertexArray(vertexArrayID));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW));
 
     // Rebind the buffer data, normals are now updated
     // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     // glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW);
 
-    // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, mVerts.size()); // 3 indices starting at 0 -> 1 triangle
+    // Draw the triangle!
+    GLCall(glDrawArrays(GL_TRIANGLES, 0, mVerts.size())); // 3 indices starting at 0 -> 1 triangle
     
     // Unbind
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDisableVertexAttribArray(0);
+//    GLCall(glBindVertexArray(0));
+//    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+//    GLCall(glDisableVertexAttribArray(0));
 
-    glDisable( GL_BLEND );
+    //glDisable( GL_BLEND );
 
     // mBoundingbox->render(sceneMatrices[I_MVP]);
 
@@ -193,10 +195,9 @@ void HalfEdgeMesh::buildRenderData() {
         // mOrderedNormalList.push_back(faceNormal);
     }
 }
-unsigned int HalfEdgeMesh::getEdge(glm::vec3 vertPos) {
-
-    for(unsigned int i = 0; i < mEdges.size(); i++) {
-        if(getVert(getEdge(i).vert).pos == vertPos)
-            return i;
-    }
-}
+//unsigned int HalfEdgeMesh::getEdge(glm::vec3 vertPos) {
+//    for(unsigned int i = 0; i < mEdges.size(); i++) {
+//        if(getVert(getEdge(i).vert).pos == vertPos)
+//            return i;
+//    }
+//}

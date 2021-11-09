@@ -50,6 +50,9 @@
 #include "jc_voronoi.h"
 const int WIDTH = 1024;
 const int HEIGHT = 768;
+
+#define DEBUG = true;
+
 GLFWwindow* InitWindow()
 {
     // Initialise GLFW
@@ -129,9 +132,8 @@ int main( void )
         // Shader shader("src/res/shaders/Basic.shader");
         // shader.Bind();
         // Renderer renderer;
-        HalfEdgeMesh* plane = new HalfEdgeMesh(glm::vec4(1.0f, 1.0f, 1.0f,1.0f), "plane");
-        plane->generatePlane(1.0f, 1.0f);
-        plane->initialize(glm::vec3(2.f,2.f,2.f));
+        HalfEdgeMesh* plane = new HalfEdgeMesh("plane");
+        plane->generatePlane(0.5f, 0.5f);
         Scene* scene = new Scene();
         scene->addGeometry(plane);
         scene->initialize();

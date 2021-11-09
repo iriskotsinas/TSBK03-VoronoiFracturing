@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Debug.h"
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include "iostream"
@@ -62,7 +62,7 @@ class HalfEdgeMesh{
         // The edges of the mesh
         std::vector<HalfEdge> mEdges;
         // The vertices in the mesh
-        std::vector<Vertex> mVerts;
+        std::vector<glm::vec3> mVerts;
         // The faces in the mesh
         std::vector<Face> mFaces;
 
@@ -90,9 +90,9 @@ class HalfEdgeMesh{
         GLint shinynessLoc;     // How much specularity (magnitude)
 
     public:
-        HalfEdgeMesh(glm::vec4 c, std::string s);
+        explicit HalfEdgeMesh(std::string s);
 
-        ~HalfEdgeMesh();
+        ~HalfEdgeMesh() = default;;
         void generatePlane(float width, float height);
         void initialize(glm::vec3);
 
@@ -108,7 +108,7 @@ class HalfEdgeMesh{
         Face& getFace(unsigned int i) { return mFaces.at(i); }
         const Face& getFace(unsigned int i) const { return mFaces.at(i); }
 
-        Vertex& getVert(unsigned int i) { return mVerts.at(i); }
+        glm::vec3& getVert(unsigned int i) { return mVerts.at(i); }
         const Vertex getVert(unsigned int i) const { return mVerts.at(i); }
 
         void addVertex(glm::vec3 v) { mVerts.push_back(v); }

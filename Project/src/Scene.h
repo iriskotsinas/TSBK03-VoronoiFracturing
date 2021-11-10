@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "HalfEdgeMesh.h"
+#include "Geometry.h"
 #include <vector>
 #define I_MVP 0
 #define I_MV 1
@@ -21,7 +21,7 @@ public:
     
     void render();
 
-    void addGeometry(HalfEdgeMesh*);
+    void addGeometry(Geometry*);
 
     
 private:
@@ -32,9 +32,7 @@ private:
     
     glm::mat4x4 toMatrix4x4(glm::mat3);
 
-    glm::mat4 toGlmMat4(float []);
-
-    std::vector<HalfEdgeMesh*>mGeometries;
+    std::vector<Geometry*>mGeometries;
     
     std::vector<glm::mat4x4>mSceneMatrices;
 
@@ -47,7 +45,7 @@ private:
     
         float fov = 45.0f;
         float aspectRatio = 4.0f / 3.0f;
-        float zoom = 4.0f;
+        float zoom = 2.0f;
         glm::quat orientation;
         glm::mat4 projectionMatrix;
         glm::mat4 viewMatrix;

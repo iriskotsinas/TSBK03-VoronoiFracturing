@@ -17,6 +17,7 @@ class Shader
         std::unordered_map<std::string, int> m_UniformLocationCache;
 
     public:
+        Shader() = default;
         Shader(const std::string& filepath);
         ~Shader();
 

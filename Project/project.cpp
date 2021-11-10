@@ -37,21 +37,22 @@
 
 #include <iostream>
 
-#include "src/VertexBuffer.h"
-#include "src/VertexArray.h"
-#include "src/IndexBuffer.h"
-#include "src/Shader.h"
-#include "src/Renderer.h"
+// #include "src/VertexBuffer.h"
+// #include "src/VertexArray.h"
+// #include "src/IndexBuffer.h"
+// #include "src/Shader.h"
+// #include "src/Renderer.h"
 #include "src/Scene.h"
-#include "src/HalfEdgeMesh.h"
-#include "src/VoronoiDiagram.h"
+// #include "src/HalfEdgeMesh.h"
+// #include "src/VoronoiDiagram.h"
 // #include "src/Geometry.h"
+#include "src/Plane.h"
 
 #include "jc_voronoi.h"
 const int WIDTH = 1024;
 const int HEIGHT = 768;
 
-#define DEBUG = true;
+#define DEBUG
 
 GLFWwindow* InitWindow()
 {
@@ -99,41 +100,16 @@ GLFWwindow* InitWindow()
 
 int main( void )
 {
-    VoronoiDiagram vd(100, 100);
-    vd.SamplePoints(10);
+    // VoronoiDiagram vd(100, 100);
+    // vd.SamplePoints(10);
 
 
     GLFWwindow* window = InitWindow();
     if (!window)
         return -1;
 
-    float positions[] = {
-        -0.5f, -0.5f, // 0
-         0.5f, -0.5f, // 1
-         0.5f,  0.5f, // 2
-        -0.5f,  0.5f  // 3
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
     {
-        // VertexArray va;
-        // VertexBuffer vb(positions, 4 * 2 * sizeof(float));
-        // IndexBuffer ib(indices, 6);
-
-        // VertexBufferLayout layout;
-        // layout.AddFloat(2);
-
-        // va.AddBuffer(vb, layout);
-
-        // Shader shader("src/res/shaders/Basic.shader");
-        // shader.Bind();
-        // Renderer renderer;
-        HalfEdgeMesh* plane = new HalfEdgeMesh("plane");
-        plane->generatePlane(0.5f, 0.5f);
+        Plane* plane = new Plane(0.5f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
         Scene* scene = new Scene();
         scene->addGeometry(plane);
         scene->initialize();

@@ -1,36 +1,9 @@
 #include "HalfEdgeMesh.h"
 
-HalfEdgeMesh::HalfEdgeMesh(std::string s)
-    :mObjName(s) {
-
+HalfEdgeMesh::HalfEdgeMesh(std::string s) {
+    setName(s);
     mTransMat = glm::mat4(1.0f);
 
-
-}
-void HalfEdgeMesh::generatePlane(float width, float height) {
-
-    glm::vec3 v0 = {-width, -height, 0.0f};
-    glm::vec3 v1 = {width, height, 0.0f};
-    glm::vec3 v2 = {-width, height, 0.0f};
-    glm::vec3 v3 = {width, -height, 0.0f};
-
-    std::cout << "\nAdd vertex ...\n\n";
-
-    // Add vertices and normals
-    addVertex(v0);
-    // addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-    addVertex(v1);
-    // addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-    addVertex(v2);
-    // addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-    addVertex(v0);
-    // addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-    addVertex(v3);
-    // addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-    addVertex(v1);
-    // addNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // calculateCenterOfMass();
 }
 void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
@@ -62,21 +35,13 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
     GLCall(glGenVertexArrays(1, &vertexArrayID));
     GLCall(glBindVertexArray(vertexArrayID));
-    // VertexArray va;
-    // VertexBuffer vb(positions, 4 * 2 * sizeof(float));
-    // IndexBuffer ib(indices, 6);
 
-    // VertexBufferLayout layout;
-    // layout.AddFloat(2);
-
-    // va.AddBuffer(vb, layout);
-    // // Create and compile our GLSL program from the shaders
     Shader shader("src/res/shaders/Basic.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
     shaderProgram = shader.getProgram();
 
-    // MVPLoc          = glGetUniformLocation(shaderProgram, "MVP");
+    MVPLoc          = glGetUniformLocation(shaderProgram, "MVP");
     // MVLoc           = glGetUniformLocation(shaderProgram, "MV");
     // MVLightLoc      = glGetUniformLocation(shaderProgram, "MV_light");
     // NMLoc           = glGetUniformLocation(shaderProgram, "NM");
@@ -129,7 +94,7 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
     //glDisable( GL_BLEND );
     //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     
-    // glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP](0, 0));
+    glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
     // glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV](0, 0));
     // glUniformMatrix4fv(MVLightLoc, 1, GL_FALSE, &sceneMatrices[I_MV_LIGHT](0, 0));
     // glUniformMatrix4fv(NMLoc, 1, GL_FALSE, &sceneMatrices[I_NM](0, 0));
@@ -168,24 +133,24 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
 }
 void HalfEdgeMesh::buildRenderData() {
 
-    for(int i = 0; i < mFaces.size(); i++ ){
+    // for(int i = 0; i < mFaces.size(); i++ ){
         
-        Face face = getFace(i);
+    //     Face face = getFace(i);
 
-        HalfEdge edge = getEdge(face.edge);
+    //     HalfEdge edge = getEdge(face.edge);
 
-        Vertex v1 = getVert(edge.vert);
-        edge = getEdge(edge.next);
+    //     Vertex v1 = getVert(edge.vert);
+    //     edge = getEdge(edge.next);
 
-        Vertex v2 = getVert(edge.vert);
-        edge = getEdge(edge.next);
+    //     Vertex v2 = getVert(edge.vert);
+    //     edge = getEdge(edge.next);
 
-        Vertex v3 = getVert(edge.vert);
+    //     Vertex v3 = getVert(edge.vert);
 
-        // Add vertices to our drawing list
-        mOrderedVertexList.push_back(v1.pos);    
-        mOrderedVertexList.push_back(v2.pos);
-        mOrderedVertexList.push_back(v3.pos);
+    //     // Add vertices to our drawing list
+    //     mOrderedVertexList.push_back(v1.pos);    
+    //     mOrderedVertexList.push_back(v2.pos);
+    //     mOrderedVertexList.push_back(v3.pos);
 
         // glm::vec3 faceNormal = getFace(i).normal;
 
@@ -193,7 +158,7 @@ void HalfEdgeMesh::buildRenderData() {
         // mOrderedNormalList.push_back(faceNormal);
         // mOrderedNormalList.push_back(faceNormal);
         // mOrderedNormalList.push_back(faceNormal);
-    }
+    // }
 }
 //unsigned int HalfEdgeMesh::getEdge(glm::vec3 vertPos) {
 //    for(unsigned int i = 0; i < mEdges.size(); i++) {

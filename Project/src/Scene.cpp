@@ -33,11 +33,11 @@ void Scene::initialize() {
     mSceneMatrices.push_back(glm::mat4x4());
     mSceneMatrices.push_back(glm::mat4x4());
 
-    for(std::vector<HalfEdgeMesh *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
+    for(std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
         (*it)->initialize(mPointLight.position);
     std::cout<<"Scene initialized..."<<std::endl;
 }
-void Scene::addGeometry(HalfEdgeMesh *G) {
+void Scene::addGeometry(Geometry *G) {
 
     //updateVoronoiPatterns("icosphere", Matrix4x4<float>());
     mGeometries.push_back(G);
@@ -68,7 +68,7 @@ void Scene::render() {
 
     glm::mat4 modelMatrix;
     // render Geometries in scene
-    for(std::vector<HalfEdgeMesh*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it) {
+    for(std::vector<Geometry*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it) {
 
         // The scene modelmatrix is nothing atm, the geometries will have their own model transforms
         modelMatrix = (*it)->getTransMat();

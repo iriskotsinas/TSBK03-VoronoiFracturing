@@ -7,9 +7,7 @@
 #include "iostream"
 #include "vector"
 #include "Shader.h"
-// #include "VertexArray.h"
-// #include "VertexBuffer.h"
-// #include "IndexBuffer.h"
+
 #ifdef __APPLE__
 // Mac
 	#include <OpenGL/gl3.h>

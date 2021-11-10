@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Debug.h"
 #include <string>
 #include <unordered_map>
 

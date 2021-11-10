@@ -1,4 +1,3 @@
-#include "Renderer.h"
 #include "Shader.h"
 
 #include <iostream>

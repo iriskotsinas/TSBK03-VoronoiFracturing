@@ -1,17 +1,27 @@
 #pragma once
+
+
+#define JC_VORONOI_IMPLEMENTATION
+#include "jc_voronoi.h"
+
 #include <glm/glm.hpp>
 #include <list>
+#include <random>
+#include <iostream>
+#include <string.h>
+
+#include "Geometry.h"
 
 class VoronoiDiagram
 {
     public:
-        VoronoiDiagram(unsigned int _x, unsigned int _y)
-            :x{_x}, y{_y}{};
+        VoronoiDiagram(Geometry* mesh);
         ~VoronoiDiagram() = default;
-        void SamplePoints(unsigned int n);
-
+        void samplePoints(unsigned int n);
+        void fracture();
     private:
-        unsigned int x,y;
-        std::list<glm::vec2> points;
+        std::pair< float, float> x,y;
+        std::vector<jcv_point> points;
+        Geometry* mesh;
 
 };

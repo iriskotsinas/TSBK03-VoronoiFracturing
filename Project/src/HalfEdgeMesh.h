@@ -37,6 +37,11 @@
 
 class HalfEdgeMesh : public Geometry{
      private:
+        
+        // The edges of the mesh
+        std::vector<HalfEdge> mEdges;
+        // The faces in the mesh
+        std::vector<Face> mFaces;
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
 

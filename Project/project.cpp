@@ -26,6 +26,8 @@
 	#endif
 #endif
 
+#define DEBUG
+
 // #include "VectorUtils3.h"
 // #include "GL_utilities.h"
 // #include "LittleOBJLoader.h"
@@ -44,15 +46,14 @@
 // #include "src/Renderer.h"
 #include "src/Scene.h"
 // #include "src/HalfEdgeMesh.h"
-// #include "src/VoronoiDiagram.h"
+#include "src/VoronoiDiagram.h"
 // #include "src/Geometry.h"
 #include "src/Plane.h"
 
-#include "jc_voronoi.h"
+// #include "jc_voronoi.h"
 const int WIDTH = 1024;
 const int HEIGHT = 768;
 
-#define DEBUG
 
 GLFWwindow* InitWindow()
 {
@@ -113,6 +114,11 @@ int main( void )
         Scene* scene = new Scene();
         scene->addGeometry(plane);
         scene->initialize();
+
+        VoronoiDiagram vd(plane);
+        vd.samplePoints(10);
+        vd.fracture();
+
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             // renderer.Clear();

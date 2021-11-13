@@ -7,7 +7,7 @@
 #include "iostream"
 #include "vector"
 #include "Shader.h"
-
+#include <limits>
 #ifdef __APPLE__
 // Mac
 	#include <OpenGL/gl3.h>
@@ -39,34 +39,29 @@ class Geometry{
      protected:
         struct HalfEdge {
             HalfEdge();
-            Vertex* vert;  // index into mVerts (the origin vertex)
-            Face* face;  // index into mFaces
-            HalfEdge* next;  // index into mEdges
-            HalfEdge* prev;  // index into mEdges
-            Face* pair;  // index into mEdges
+            Vertex* vert;
+            Face* face; 
+            HalfEdge* next;  
+            HalfEdge* prev; 
+            Face* pair;  
         };
-         struct Vertex {
+        struct Vertex {
             Vertex(const glm::vec3& p = glm::vec3(0,0,0),
             const glm::vec3& n = glm::vec3(0,0,0))
             : pos(p),
             normal(n) {}
             glm::vec3 pos;
             glm::vec3 normal;
-            HalfEdge* edge;     // index into mEdges
+            HalfEdge* edge;    
         };
         struct Face {
             Face(const glm::vec3& n = glm::vec3(0,0,0)) 
             : normal(n) {}
             glm::vec3 normal;
-            HalfEdge* edge; //!< index into mEdges
+            HalfEdge* edge; 
         };
-        // The edges of the mesh
-        std::vector<HalfEdge> mEdges;
         // The vertices in the mesh
         std::vector<glm::vec3> mVerts;
-        // The faces in the mesh
-        std::vector<Face> mFaces;
-
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
         glm::mat4 mTransMat;
@@ -104,5 +99,36 @@ class Geometry{
         virtual void addVertex(glm::vec3 v) { mVerts.push_back(v); }
         void setName(std::string s){
             mObjName = s;
+        }
+        int getVertCount(){
+            return mVerts.size();
+        }
+        std::vector<glm::vec3> getVerts(){
+            return mVerts;
+        }
+        void setBoundaries(std::pair< float, float> &x, std::pair< float, float> &y){
+            float x_min, x_max, y_min,y_max;
+            float min = std::numeric_limits<float>::infinity();
+            float max = std::numeric_limits<float>::min();
+            for (auto v : mVerts)
+            {
+                if(v[0] < min){
+                    x_min = v[0];
+                }
+                if(v[0] > max){
+                    x_max = v[0];
+                }
+                if(v[1] < min){
+                    y_min = v[0];
+                }
+                if(v[1] > max){
+                    y_max = v[0];
+                }
+            }
+            x.first = x_min;
+            x.second = x_max;
+            y.first = y_min;
+            y.second = y_max;
+            
         }
 };

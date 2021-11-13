@@ -45,7 +45,7 @@ private:
     
         float fov = 45.0f;
         float aspectRatio = 4.0f / 3.0f;
-        float zoom = 2.0f;
+        float zoom = 1.0f;
         glm::quat orientation;
         glm::mat4 projectionMatrix;
         glm::mat4 viewMatrix;

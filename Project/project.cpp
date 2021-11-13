@@ -112,12 +112,14 @@ int main( void )
     {
         Plane* plane = new Plane(0.5f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
         Scene* scene = new Scene();
-        scene->addGeometry(plane);
+        VoronoiDiagram* vd = new VoronoiDiagram(plane);
+        vd->samplePoints(50);
+        vd->fracture();
+
+        // scene->addGeometry(plane);
+        scene->addGeometry(vd);
         scene->initialize();
 
-        VoronoiDiagram vd(plane);
-        vd.samplePoints(10);
-        vd.fracture();
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

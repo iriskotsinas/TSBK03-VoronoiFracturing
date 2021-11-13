@@ -107,28 +107,29 @@ class Geometry{
             return mVerts;
         }
         void setBoundaries(std::pair< float, float> &x, std::pair< float, float> &y){
-            float x_min, x_max, y_min,y_max;
-            float min = std::numeric_limits<float>::infinity();
-            float max = std::numeric_limits<float>::min();
+            float min_x = std::numeric_limits<float>::infinity();
+            float max_x = std::numeric_limits<float>::min();
+            float min_y = std::numeric_limits<float>::infinity();
+            float max_y = std::numeric_limits<float>::min();
             for (auto v : mVerts)
             {
-                if(v[0] < min){
-                    x_min = v[0];
+                if(v[0] < min_x){
+                    min_x = v[0];
                 }
-                if(v[0] > max){
-                    x_max = v[0];
+                if(v[0] > max_x){
+                    max_x = v[0];
                 }
-                if(v[1] < min){
-                    y_min = v[0];
+                if(v[1] < min_y){
+                    min_y = v[1];
                 }
-                if(v[1] > max){
-                    y_max = v[0];
+                if(v[1] > max_y){
+                    max_y = v[1];
                 }
             }
-            x.first = x_min;
-            x.second = x_max;
-            y.first = y_min;
-            y.second = y_max;
+            x.first = min_x;
+            x.second = max_x;
+            y.first = min_y;
+            y.second = max_y;
             
         }
 };

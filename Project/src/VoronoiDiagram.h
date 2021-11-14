@@ -23,7 +23,7 @@ class VoronoiDiagram : public Geometry
         void fracture();
         void initialize(glm::vec3);
         void render(std::vector<glm::mat4x4> sceneMatrices);
-        
+        glm::vec3 enforceBoundaries(glm::vec3 p);
     private:
         std::pair< float, float> x,y;
         std::vector<jcv_point> points;

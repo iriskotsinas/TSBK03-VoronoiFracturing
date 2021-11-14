@@ -77,10 +77,13 @@ void VoronoiDiagram::fracture(){
     const jcv_edge* edge = jcv_diagram_get_edges( dynamic_cast<const jcv_diagram*>(&diagram) );
     while( edge )
     {
-        std::cout<<"E: p0: "<<edge->pos[0].x<<", p1: "<< edge->pos[1].x <<std::endl;
         // draw_line(edge->pos[0], edge->pos[1], sceneMatrices);
-        orderedEdgePoints.push_back(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
-        orderedEdgePoints.push_back(glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f));
+        glm::vec3 pos0 = glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f);
+        glm::vec3 pos1 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
+        // orderedEdgePoints.push_back(pos0);
+        // orderedEdgePoints.push_back(pos1);
+        orderedEdgePoints.push_back(enforceBoundaries(pos0));
+        orderedEdgePoints.push_back(enforceBoundaries(pos1));
         edge = jcv_diagram_get_next_edge(edge);
     }
     // orderedEdgePoints.push_back(glm::vec3(0.0f, 0.0f, 0.2f));
@@ -89,6 +92,21 @@ void VoronoiDiagram::fracture(){
     // orderedEdgePoints.push_back(glm::vec3(-0.1f, 0.0f, 0.0f));
     std::cout<<"VoronoiDiagram fractured"<<std::endl;
 }
+glm::vec3 VoronoiDiagram::enforceBoundaries(glm::vec3 p){
+    if(p.x < x.first)
+        p.x = x.first;
+    else if(p.x > x.second)
+        p.x = x.second;
+
+    if(p.y < y.first)
+        p.y = y.first;
+    else if(p.y > y.second)
+        p.y = y.second;
+
+    std::cout<<"p: x: "<<p.x<<", y: "<< p.x <<std::endl;
+    return p;
+}
+
 void VoronoiDiagram::render(std::vector<glm::mat4x4> sceneMatrices){
 
     GLCall(glUseProgram(shaderProgram));

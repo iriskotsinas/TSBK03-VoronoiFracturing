@@ -1,7 +1,7 @@
 #include "VoronoiDiagram.h"
 
-VoronoiDiagram::VoronoiDiagram(Geometry* _mesh)
-    :mesh{_mesh}
+VoronoiDiagram::VoronoiDiagram(Geometry* _mesh, const bool _debug)
+    :mesh{_mesh}, debug{_debug}
 {
     mTransMat = glm::mat4(1.0f);
     mesh->setBoundaries(x, y);
@@ -24,30 +24,56 @@ void VoronoiDiagram::samplePoints(unsigned int n)
     std::cout<<"VoronoiDiagram points sampled"<<std::endl;
 }
 void VoronoiDiagram::initialize(glm::vec3 lightPosition){
-    
+    std::cout<<"Colors: "<<mOrderedColorList.size()<<std::endl;
+    std::cout<<"Vertices: "<<mOrderedVertexList.size()<<std::endl;
+    //Positions
     GLCall(glGenVertexArrays(1, &vertexArrayID));
     GLCall(glBindVertexArray(vertexArrayID));
 
     Shader shader("src/res/shaders/Basic.shader");
     shader.Bind();
-    shader.SetUniform4f("u_Color", 1.0, 0.0, 0.0, 1.0);
+    // shader.SetUniform4f("u_Color", 1.0, 0.0, 0.0, 1.0);
     shaderProgram = shader.getProgram();
 
     MVPLoc = glGetUniformLocation(shaderProgram, "MVP");
-
+    //Positions
     GLCall(glGenBuffers(1, &vertexBuffer));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
 
-    // // 1st attribute buffer : vertices
-    GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Position")));
+
+    if(debug){
+        GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
+    }
+    else{
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
+       
+    }
+    
+    //Position attribute buffer : vertices
+    GLCall(glEnableVertexAttribArray(0));
     GLCall(glVertexAttribPointer(
-        glGetAttribLocation(shaderProgram, "in_Position"),
+        0,
         3,                          // size
         GL_FLOAT,                   // type
         GL_FALSE,                   // normalized?
         0,                          // stride
-        reinterpret_cast<void*>(0)  // array buffer offset
+        0  // array buffer offset
+    ));
+    
+    //Vertex Colors
+    GLCall(glGenBuffers(1, &colorBuffer));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+
+    GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0], GL_STATIC_DRAW));
+
+    GLCall(glEnableVertexAttribArray(1));
+    GLCall(glVertexAttribPointer(
+        1,
+        4,                          // size
+        GL_FLOAT,                   // type
+        GL_FALSE,                   // normalized?
+        0,                          // stride
+        0  // array buffer offset
     ));
     std::cout<<"VoronoiDiagram initialized"<<std::endl;
 }
@@ -80,12 +106,33 @@ void VoronoiDiagram::fracture(){
     memset(&diagram, 0, sizeof(jcv_diagram));
     jcv_diagram_generate(points.size(), j_points, bounds, 0, &diagram);
 
-    
-    const jcv_site* sites = jcv_diagram_get_sites(&diagram);
 
     std::cout<<"Number of Sites: "<<diagram.numsites <<std::endl;
 
-    //If all you need are the edges
+    //Building data structure for rendering
+    if(debug){
+        buildLines();
+    }
+    else{
+        buildTriangles();
+    }
+    std::cout<<"VoronoiDiagram fractured"<<std::endl;
+}
+// glm::vec3 VoronoiDiagram::enforceBoundaries(glm::vec3 p){
+//     if(p.x < x.first)
+//         p.x = x.first;
+//     else if(p.x > x.second)
+//         p.x = x.second;
+
+//     if(p.y < y.first)
+//         p.y = y.first;
+//     else if(p.y > y.second)
+//         p.y = y.second;
+
+//     std::cout<<"p: x: "<<p.x<<", y: "<< p.x <<std::endl;
+//     return p;
+// }
+void VoronoiDiagram::buildLines(){
     const jcv_edge* edge = jcv_diagram_get_edges( dynamic_cast<const jcv_diagram*>(&diagram) );
     while( edge )
     {
@@ -94,31 +141,35 @@ void VoronoiDiagram::fracture(){
         glm::vec3 pos1 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
         orderedEdgePoints.push_back(pos0);
         orderedEdgePoints.push_back(pos1);
-        // orderedEdgePoints.push_back(enforceBoundaries(pos0));
-        // orderedEdgePoints.push_back(enforceBoundaries(pos1));
+
         edge = jcv_diagram_get_next_edge(edge);
     }
-    // orderedEdgePoints.push_back(glm::vec3(0.0f, 0.0f, 0.2f));
-    // orderedEdgePoints.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-    // orderedEdgePoints.push_back(glm::vec3(-0.1f, 0.6f, 0.0f));
-    // orderedEdgePoints.push_back(glm::vec3(-0.1f, 0.0f, 0.0f));
-    std::cout<<"VoronoiDiagram fractured"<<std::endl;
 }
-glm::vec3 VoronoiDiagram::enforceBoundaries(glm::vec3 p){
-    if(p.x < x.first)
-        p.x = x.first;
-    else if(p.x > x.second)
-        p.x = x.second;
+void VoronoiDiagram::buildTriangles(){
+    std::random_device rd;
+    std::mt19937 e2(rd());
+    std::uniform_real_distribution<> dist(0.0f, 1.0f);
 
-    if(p.y < y.first)
-        p.y = y.first;
-    else if(p.y > y.second)
-        p.y = y.second;
-
-    std::cout<<"p: x: "<<p.x<<", y: "<< p.x <<std::endl;
-    return p;
+    const jcv_site* sites = jcv_diagram_get_sites( &diagram );
+    for( int i = 0; i < diagram.numsites; ++i )
+    {
+        const jcv_site* site = &sites[i];
+        glm::vec4 siteColor = glm::vec4(dist(e2), dist(e2), dist(e2), 1.0f);
+        const jcv_graphedge* e = site->edges;
+        while( e )
+        {
+            mOrderedVertexList.push_back(glm::vec3(site->p.x, site->p.y, 0.0f));
+            mOrderedVertexList.push_back(glm::vec3(e->pos[0].x, e->pos[0].y, 0.0f));
+            mOrderedVertexList.push_back(glm::vec3(e->pos[1].x, e->pos[1].y, 0.0f));
+            
+            mOrderedColorList.push_back(siteColor);
+            mOrderedColorList.push_back(siteColor);
+            mOrderedColorList.push_back(siteColor);
+            e = e->next;
+        }
+    }
+    std::cout<<"random: " <<rand()*5 <<std::endl;
 }
-
 void VoronoiDiagram::render(std::vector<glm::mat4x4> sceneMatrices){
 
     GLCall(glUseProgram(shaderProgram));
@@ -127,8 +178,22 @@ void VoronoiDiagram::render(std::vector<glm::mat4x4> sceneMatrices){
 
     GLCall(glBindVertexArray(vertexArrayID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
-    // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
-    
-    glDrawArrays(GL_LINES, 0, orderedEdgePoints.size());
+
+    if(debug){
+        //Lines
+        GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
+        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
+        
+        glDrawArrays(GL_LINES, 0, orderedEdgePoints.size());
+    }
+    else{
+        //Triangles
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
+        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
+        
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0], GL_STATIC_DRAW));
+        
+        glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size());
+    }
 }

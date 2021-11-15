@@ -17,7 +17,7 @@
 class VoronoiDiagram : public Geometry
 {
     public:
-        VoronoiDiagram(Geometry* mesh);
+        VoronoiDiagram(Geometry* mesh, const bool _debug);
         ~VoronoiDiagram(){
             jcv_diagram_free(&diagram);
         }
@@ -25,11 +25,14 @@ class VoronoiDiagram : public Geometry
         void fracture();
         void initialize(glm::vec3);
         void render(std::vector<glm::mat4x4> sceneMatrices);
-        glm::vec3 enforceBoundaries(glm::vec3 p);
+        void buildLines();
+        void buildTriangles();
+        // glm::vec3 enforceBoundaries(glm::vec3 p);
     private:
         std::pair< float, float> x,y;
         std::vector<jcv_point> points;
         std::vector<glm::vec3> orderedEdgePoints;
         Geometry* mesh;
         jcv_diagram diagram;
+        bool debug;
 };

@@ -112,7 +112,7 @@ int main( void )
     {
         Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
         Scene* scene = new Scene();
-        VoronoiDiagram* vd = new VoronoiDiagram(plane);
+        VoronoiDiagram* vd = new VoronoiDiagram(plane, false);
         vd->samplePoints(50);
         vd->fracture();
 

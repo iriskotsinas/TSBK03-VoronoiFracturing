@@ -64,11 +64,13 @@ class Geometry{
         std::vector<glm::vec3> mVerts;
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
+        std::vector< glm::vec4> mOrderedColorList;
         glm::mat4 mTransMat;
         std::string mObjName;
         // Shader data
         GLuint vertexArrayID;
         GLuint vertexBuffer;
+        GLuint colorBuffer;
         GLuint normalBuffer;
         GLuint shaderProgram;
 

@@ -3,6 +3,8 @@
 
 #define JC_VORONOI_IMPLEMENTATION
 #include "jc_voronoi.h"
+// #define JC_VORONOI_CLIP_IMPLEMENTATION
+// #include <jc_voronoi_clip.h>
 
 #include <glm/glm.hpp>
 #include <list>

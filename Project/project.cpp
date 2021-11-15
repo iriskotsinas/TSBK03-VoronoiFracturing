@@ -110,7 +110,7 @@ int main( void )
         return -1;
 
     {
-        Plane* plane = new Plane(0.5f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+        Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
         Scene* scene = new Scene();
         VoronoiDiagram* vd = new VoronoiDiagram(plane);
         vd->samplePoints(50);

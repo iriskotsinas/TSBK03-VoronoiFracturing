@@ -65,8 +65,20 @@ void VoronoiDiagram::fracture(){
     
     std::cout<<"Number of Points: "<<points.size()<<std::endl;
 
+    jcv_rect* bounds = new jcv_rect();
+    jcv_point maxPoint, minPoint;
+
+    minPoint.x = x.first;
+    minPoint.y = y.first;
+    maxPoint.x = x.second;
+    maxPoint.y = y.second;
+
+    bounds->max = maxPoint;
+    bounds->min = minPoint;
+
+
     memset(&diagram, 0, sizeof(jcv_diagram));
-    jcv_diagram_generate(points.size(), j_points, 0, 0, &diagram);
+    jcv_diagram_generate(points.size(), j_points, bounds, 0, &diagram);
 
     
     const jcv_site* sites = jcv_diagram_get_sites(&diagram);
@@ -80,10 +92,10 @@ void VoronoiDiagram::fracture(){
         // draw_line(edge->pos[0], edge->pos[1], sceneMatrices);
         glm::vec3 pos0 = glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f);
         glm::vec3 pos1 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
-        // orderedEdgePoints.push_back(pos0);
-        // orderedEdgePoints.push_back(pos1);
-        orderedEdgePoints.push_back(enforceBoundaries(pos0));
-        orderedEdgePoints.push_back(enforceBoundaries(pos1));
+        orderedEdgePoints.push_back(pos0);
+        orderedEdgePoints.push_back(pos1);
+        // orderedEdgePoints.push_back(enforceBoundaries(pos0));
+        // orderedEdgePoints.push_back(enforceBoundaries(pos1));
         edge = jcv_diagram_get_next_edge(edge);
     }
     // orderedEdgePoints.push_back(glm::vec3(0.0f, 0.0f, 0.2f));

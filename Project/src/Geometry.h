@@ -61,7 +61,9 @@ class Geometry{
             glm::vec3 normal;
             HalfEdge* edge; 
         };
-        // The vertices in the mesh
+        bool debug = false;
+        std::vector<glm::vec3> orderedEdgePoints;
+    // The vertices in the mesh
         std::vector<glm::vec3> mVerts;
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;

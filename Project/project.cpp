@@ -130,12 +130,12 @@ int main( void )
     {
         Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
         scene = new Scene();
-        VoronoiDiagram* vd = new VoronoiDiagram(plane, false);
+        VoronoiDiagram* vd = new VoronoiDiagram(plane, scene);
         vd->samplePoints(50);
         vd->fracture();
 
         // scene->addGeometry(plane);
-        scene->addGeometry(vd);
+        // scene->addGeometry(vd);
         scene->initialize();
 
         glfwSetCursorPosCallback(window, mouseDragged);

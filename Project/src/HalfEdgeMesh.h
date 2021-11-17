@@ -30,6 +30,8 @@
 		// #include <GL/glut.h>
 	#endif
 #endif
+#include "jc_voronoi.h"
+
 #define I_MVP 0
 #define I_MV 1
 #define I_MV_LIGHT 2
@@ -39,16 +41,19 @@ class HalfEdgeMesh : public Geometry{
      private:
         
         // The edges of the mesh
-        std::vector<HalfEdge> mEdges;
+        std::vector<jcv_graphedge*> mEdges;
         // The faces in the mesh
         std::vector<Face> mFaces;
         // Vertex list in drawing order
-        std::vector< glm::vec3> mOrderedVertexList;
+        std::vector<glm::vec3> mOrderedVertexList;
+        glm::vec3 siteCenter;
+        glm::vec4 mColor;
 
     public:
         HalfEdgeMesh(std::string s);
 
-        ~HalfEdgeMesh() = default;;
+        ~HalfEdgeMesh() = default;
+        void extrude();
         void generatePlane(float width, float height);
         void initialize(glm::vec3);
 
@@ -57,5 +62,11 @@ class HalfEdgeMesh : public Geometry{
         glm::mat4 getTransMat() { return mTransMat; }
         void buildRenderData();
 
-        void addVertex(glm::vec3 v) { mVerts.push_back(v); }
+        void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
+        void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
+        void addHalfEdge(const jcv_graphedge* e) {
+            mEdges.push_back((jcv_graphedge*)e);
+        }
+        void setSiteCenter(glm::vec3 s) { siteCenter = s; }
+        void setColor(glm::vec4 c) { mColor = c; }
 };

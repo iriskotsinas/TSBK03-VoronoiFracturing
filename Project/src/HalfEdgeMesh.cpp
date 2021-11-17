@@ -5,6 +5,7 @@ HalfEdgeMesh::HalfEdgeMesh(std::string s) {
     mTransMat = glm::mat4(1.0f);
 
 }
+
 void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
     std::cout << "\nInitializing Half-Edge mesh ...\n\n";
@@ -32,6 +33,7 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
     // updateRenderData();
 
     // std::cout << "\t --- \t Volume: " << volume() << "\t --- \t" << std::endl;
+    buildRenderData();
 
     GLCall(glGenVertexArrays(1, &vertexArrayID));
     GLCall(glBindVertexArray(vertexArrayID));
@@ -57,7 +59,7 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
     GLCall(glGenBuffers(1, &vertexBuffer));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
 
     // // 1st attribute buffer : vertices
     GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Position")));
@@ -70,7 +72,29 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
         reinterpret_cast<void*>(0)  // array buffer offset
     ));
 
+    if(debug){
+        GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
+    }
+    else{
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
 
+    }
+
+    //Vertex Colors attribute buffer
+    GLCall(glGenBuffers(1, &colorBuffer));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+
+    GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0], GL_STATIC_DRAW));
+
+    GLCall(glEnableVertexAttribArray(1));
+    GLCall(glVertexAttribPointer(
+            1,
+            4,                          // size
+            GL_FLOAT,                   // type
+            GL_FALSE,                   // normalized?
+            0,                          // stride
+            0  // array buffer offset
+    ));
     // glGenBuffers(1, &normalBuffer);
     // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     // glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW);
@@ -87,82 +111,97 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
 
     std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
 }
+
 void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
 
-    // Use shader
     GLCall(glUseProgram(shaderProgram));
-    //glDisable( GL_BLEND );
-    //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    
-    glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
-    // glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV](0, 0));
-    // glUniformMatrix4fv(MVLightLoc, 1, GL_FALSE, &sceneMatrices[I_MV_LIGHT](0, 0));
-    // glUniformMatrix4fv(NMLoc, 1, GL_FALSE, &sceneMatrices[I_NM](0, 0));
-    // glUniform4f(colorLoc, mMaterial.color[0], mMaterial.color[1], mMaterial.color[2], mMaterial.color[3]);
-    // glUniform4f(lightAmbLoc, mMaterial.ambient[0], mMaterial.ambient[1], mMaterial.ambient[2], mMaterial.ambient[3]);
-    // glUniform4f(lightDifLoc, mMaterial.diffuse[0], mMaterial.diffuse[1], mMaterial.diffuse[2], mMaterial.diffuse[3]);
-    // glUniform4f(lightSpeLoc, mMaterial.specular[0], mMaterial.specular[1], mMaterial.specular[2], mMaterial.specular[3]);
-    // glUniform1f(specularityLoc, mMaterial.specularity);
-    // glUniform1f(shinynessLoc, mMaterial.shinyness);
 
-    // Rebind the buffer data, vertices are now updated
+    glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
+
     GLCall(glBindVertexArray(vertexArrayID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW));
 
-    // Rebind the buffer data, normals are now updated
-    // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    // glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW);
+    if (debug) {
+        //Lines
+        GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0],
+                            GL_STATIC_DRAW));
+        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
 
-    // Draw the triangle!
-    GLCall(glDrawArrays(GL_TRIANGLES, 0, mVerts.size())); // 3 indices starting at 0 -> 1 triangle
-    
-    // Unbind
-//    GLCall(glBindVertexArray(0));
-//    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-//    GLCall(glDisableVertexAttribArray(0));
+        glDrawArrays(GL_LINES, 0, orderedEdgePoints.size());
+    } else {
+        //Triangles
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0],
+                            GL_STATIC_DRAW));
+        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
 
-    //glDisable( GL_BLEND );
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0],
+                            GL_STATIC_DRAW));
 
-    // mBoundingbox->render(sceneMatrices[I_MVP]);
-
-    // if(mDebugMode) {
-    //     for(unsigned int i = 0; i < mDebugPoints.size(); i++)
-    //         mDebugPoints[i]->render(sceneMatrices);
-    // }
+        glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size());
+    }
 }
+
 void HalfEdgeMesh::buildRenderData() {
+    jcv_graphedge *edge = mEdges[0];
+    while( edge )
+    {
+        addVertex(siteCenter);
+        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
+        addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f));
 
-    // for(int i = 0; i < mFaces.size(); i++ ){
-        
-    //     Face face = getFace(i);
+        addColor(mColor);
+        addColor(mColor);
+        addColor(mColor);
 
-    //     HalfEdge edge = getEdge(face.edge);
-
-    //     Vertex v1 = getVert(edge.vert);
-    //     edge = getEdge(edge.next);
-
-    //     Vertex v2 = getVert(edge.vert);
-    //     edge = getEdge(edge.next);
-
-    //     Vertex v3 = getVert(edge.vert);
-
-    //     // Add vertices to our drawing list
-    //     mOrderedVertexList.push_back(v1.pos);    
-    //     mOrderedVertexList.push_back(v2.pos);
-    //     mOrderedVertexList.push_back(v3.pos);
-
-        // glm::vec3 faceNormal = getFace(i).normal;
-
-        // Add normals to our drawing list
-        // mOrderedNormalList.push_back(faceNormal);
-        // mOrderedNormalList.push_back(faceNormal);
-        // mOrderedNormalList.push_back(faceNormal);
-    // }
+        edge = edge->next;
+    }
+    extrude();
 }
-//unsigned int HalfEdgeMesh::getEdge(glm::vec3 vertPos) {
-//    for(unsigned int i = 0; i < mEdges.size(); i++) {
-//        if(getVert(getEdge(i).vert).pos == vertPos)
-//            return i;
-//    }
-//}
+
+void HalfEdgeMesh::extrude() {
+    std::vector<jcv_graphedge*> offsetEdges;
+    float offset = 0.5f;
+    glm::vec3 siteCenterOffset = glm::vec3(siteCenter.x, siteCenter.y, siteCenter.z-offset);
+    jcv_graphedge *edge = mEdges[0];
+
+    // Duplicate planes with triangles
+    while (edge) {
+        offsetEdges.push_back(edge);
+        addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, -offset));
+        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, -offset));
+        addVertex(siteCenterOffset);
+
+        addColor(mColor);
+        addColor(mColor);
+        addColor(mColor);
+
+        edge = edge->next;
+    }
+
+    edge = mEdges[0];
+    jcv_graphedge* edgeOffset = offsetEdges[0];
+
+    // Connect planes
+    while (edge && edgeOffset) {
+        // First triangle
+        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
+        addVertex(glm::vec3(edgeOffset->pos[0].x, edgeOffset->pos[0].y, -offset));
+        addVertex(glm::vec3(edgeOffset->pos[1].x, edgeOffset->pos[1].y, -offset));
+
+        // Second triangle
+        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
+        addVertex(glm::vec3(edgeOffset->pos[1].x, edgeOffset->pos[1].y, -offset));
+        addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f));
+
+        addColor(mColor);
+        addColor(mColor);
+        addColor(mColor);
+        addColor(mColor);
+        addColor(mColor);
+        addColor(mColor);
+
+        edge = edge->next;
+        edgeOffset = edgeOffset->next;
+    }
+}

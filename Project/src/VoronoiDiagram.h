@@ -13,11 +13,13 @@
 #include <string.h>
 #include "Debug.h"
 #include "Geometry.h"
+#include "HalfEdgeMesh.h"
+#include "Scene.h"
 
 class VoronoiDiagram : public Geometry
 {
     public:
-        VoronoiDiagram(Geometry* mesh, const bool _debug);
+        VoronoiDiagram(Geometry* mesh, Scene* s);
         ~VoronoiDiagram(){
             jcv_diagram_free(&diagram);
         }
@@ -31,8 +33,7 @@ class VoronoiDiagram : public Geometry
     private:
         std::pair< float, float> x,y;
         std::vector<jcv_point> points;
-        std::vector<glm::vec3> orderedEdgePoints;
         Geometry* mesh;
         jcv_diagram diagram;
-        bool debug;
+        Scene* scene;
 };

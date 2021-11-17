@@ -51,9 +51,9 @@
 #include "src/Plane.h"
 
 // #include "jc_voronoi.h"
-const int WIDTH = 1024;
-const int HEIGHT = 768;
-
+const int WIDTH = 1280;
+const int HEIGHT = 720;
+Scene* scene;
 
 GLFWwindow* InitWindow()
 {
@@ -98,12 +98,30 @@ GLFWwindow* InitWindow()
 
     return window;
 }
+static void mouse_cursor_callback( GLFWwindow * window, int button, int action, int mods)  
+{
 
+  if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if(GLFW_PRESS == action)
+        {
+            double x,y;
+            glfwGetCursorPos(window, &x, &y);
+            scene->setWindowPressed(x,y);
+
+        }
+        else if(GLFW_RELEASE == action)
+            scene->setWindowReleased();
+
+            
+    }
+}
+void mouseDragged(GLFWwindow* window, double x, double y) {
+
+    // std::cout<<"dragged: x: "<<x<<", y: "<<y<<std::endl;
+    scene->setCameraRotation(x, y);
+}
 int main( void )
 {
-    // VoronoiDiagram vd(100, 100);
-    // vd.SamplePoints(10);
-
 
     GLFWwindow* window = InitWindow();
     if (!window)
@@ -111,7 +129,7 @@ int main( void )
 
     {
         Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-        Scene* scene = new Scene();
+        scene = new Scene();
         VoronoiDiagram* vd = new VoronoiDiagram(plane, false);
         vd->samplePoints(50);
         vd->fracture();
@@ -120,6 +138,7 @@ int main( void )
         scene->addGeometry(vd);
         scene->initialize();
 
+        glfwSetCursorPosCallback(window, mouseDragged);
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -128,6 +147,7 @@ int main( void )
             // shader.SetUniform4f("u_Color", 1.0, 1.0, 1.0, 1.0);
             // glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
             // renderer.Draw(va, ib, shader);
+            glfwSetMouseButtonCallback(window, mouse_cursor_callback);
             scene->render();
             // Swap buffers
             glfwSwapBuffers(window);

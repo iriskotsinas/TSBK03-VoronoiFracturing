@@ -4,7 +4,7 @@
         {
             setName("Plane");
             generatePlane(width, height, pos);
-            mTransMat = glm::mat4(1.0f);
+            mTransMat = glm::translate(glm::mat4(1.0f),pos);
         }
         Plane::~Plane(){
 
@@ -13,7 +13,7 @@
             GLCall(glGenVertexArrays(1, &vertexArrayID));
             GLCall(glBindVertexArray(vertexArrayID));
 
-            shader = Shader("src/res/shaders/Basic.shader");
+            shader = Shader("src/res/shaders/SimpleColor.shader");
             shader.Bind();
             shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
             shaderProgram = shader.getProgram();

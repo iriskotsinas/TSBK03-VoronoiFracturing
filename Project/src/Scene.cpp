@@ -20,10 +20,20 @@
 	#endif
 #endif
 void Scene::initialize() {
-
     // Init the lightsource parameters
     mPointLight.position = glm::vec3(0.0f, 0.0f, 3.0f);
     mPointLight.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    mCamera.projectionMatrix = glm::perspective(
+        mCamera.fov,          // field of view, 45.0
+        mCamera.aspectRatio,  // 16/9
+        0.1f,                // Near clipping plane
+        100.0f);             // far clipping plane
+
+    mCamera.viewMatrix = glm::lookAt(
+        glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),   
+        glm::vec3(0.0f, 0.0f, 0.0f),            
+        glm::vec3(0.0f, 1.0f, 0.0f)) *                                 
+        glm::mat4_cast(mCamera.orientation); 
 
     // Background color
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -45,6 +55,21 @@ void Scene::addGeometry(Geometry *G) {
     // physicsWorld->addGeometry(G->getUniqueVertexList(), G->getWorldCenterOfMass() , type, G->volume());
 
 }
+void Scene::setCameraRotation(float x, float y){
+    if(!isPressed){
+        return; 
+    }
+    glm::vec3 p;
+
+    p.y = x - prevX;
+    p.x = -(prevY-y);
+    p.z = 0.0f;
+
+    mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, glm::sqrt(p.x*p.x + p.y*p.y) / 100.0f, p);
+    prevX = x;
+    prevY = y;
+
+}
 void Scene::render() {
 
     glEnable( GL_CULL_FACE );
@@ -54,25 +79,14 @@ void Scene::render() {
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    mCamera.projectionMatrix = glm::perspective(
-        mCamera.fov,          // field of view, 45.0
-        mCamera.aspectRatio,  // 4/3 atm
-        0.1f,                // Near clipping plane
-        100.0f);             // far clipping plane
-
-    mCamera.viewMatrix = glm::lookAt(
-        glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),   
-        glm::vec3(0.0f, 0.0f, 0.0f),            
-        glm::vec3(0.0f, 1.0f, 0.0f)) *                                 
-        glm::mat4_cast(mCamera.orientation); 
-
     glm::mat4 modelMatrix;
+    // mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f));
     // render Geometries in scene
     for(std::vector<Geometry*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it) {
 
         // The scene modelmatrix is nothing atm, the geometries will have their own model transforms
         modelMatrix = (*it)->getTransMat();
-
+        // (*it)->setTransMat(glm::rotate(modelMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f)));
         // Construct MVP matrix
         mSceneMatrices[I_MVP] = toMatrix4x4Row(mCamera.projectionMatrix * mCamera.viewMatrix * modelMatrix);
 

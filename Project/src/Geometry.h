@@ -8,6 +8,7 @@
 #include "vector"
 #include "Shader.h"
 #include <limits>
+#include <glm/gtc/matrix_transform.hpp>
 #ifdef __APPLE__
 // Mac
 	#include <OpenGL/gl3.h>
@@ -97,8 +98,11 @@ class Geometry{
         virtual void render(std::vector<glm::mat4x4>) = 0;
 
         glm::mat4 getTransMat() { return mTransMat; }
+        void setTransMat(glm::mat4 model) { 
+            mTransMat = model; 
+        }
 
-        virtual void addVertex(glm::vec3 v) { mVerts.push_back(v); }
+        void addVertex(glm::vec3 v) { mVerts.push_back(v);}
         void setName(std::string s){
             mObjName = s;
         }

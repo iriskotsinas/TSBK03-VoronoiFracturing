@@ -3,7 +3,7 @@
 VoronoiDiagram::VoronoiDiagram(Geometry* _mesh, const bool _debug)
     :mesh{_mesh}, debug{_debug}
 {
-    mTransMat = glm::mat4(1.0f);
+    mTransMat = mesh->getTransMat();
     mesh->setBoundaries(x, y);
 
 }
@@ -20,6 +20,7 @@ void VoronoiDiagram::samplePoints(unsigned int n)
         point.x = dist1(e2);
         point.y = dist2(e2);
         points.push_back(point);
+        // std::cout<<"P: x: "<<dist1(e2)<<" , y: "<<point.y<<std::endl;
     }
     std::cout<<"VoronoiDiagram points sampled"<<std::endl;
 }
@@ -49,7 +50,7 @@ void VoronoiDiagram::initialize(glm::vec3 lightPosition){
        
     }
     
-    //Position attribute buffer : vertices
+    //Position attribute buffer
     GLCall(glEnableVertexAttribArray(0));
     GLCall(glVertexAttribPointer(
         0,
@@ -59,8 +60,8 @@ void VoronoiDiagram::initialize(glm::vec3 lightPosition){
         0,                          // stride
         0  // array buffer offset
     ));
-    
-    //Vertex Colors
+
+    //Vertex Colors attribute buffer
     GLCall(glGenBuffers(1, &colorBuffer));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
 
@@ -76,6 +77,8 @@ void VoronoiDiagram::initialize(glm::vec3 lightPosition){
         0  // array buffer offset
     ));
     std::cout<<"VoronoiDiagram initialized"<<std::endl;
+
+
 }
 void VoronoiDiagram::fracture(){
 
@@ -141,7 +144,8 @@ void VoronoiDiagram::buildLines(){
         glm::vec3 pos1 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
         orderedEdgePoints.push_back(pos0);
         orderedEdgePoints.push_back(pos1);
-
+        mOrderedColorList.push_back(glm::vec4(1.0, 0, 0, 1.0f));
+        mOrderedColorList.push_back(glm::vec4(1.0, 0, 0, 1.0f));
         edge = jcv_diagram_get_next_edge(edge);
     }
 }
@@ -168,7 +172,6 @@ void VoronoiDiagram::buildTriangles(){
             e = e->next;
         }
     }
-    std::cout<<"random: " <<rand()*5 <<std::endl;
 }
 void VoronoiDiagram::render(std::vector<glm::mat4x4> sceneMatrices){
 

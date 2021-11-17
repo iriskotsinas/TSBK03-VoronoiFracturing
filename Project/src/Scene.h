@@ -23,9 +23,19 @@ public:
 
     void addGeometry(Geometry*);
 
+    void setCameraRotation(float x, float y);
+    void setWindowPressed(float x, float y){
+        isPressed = true;
+        prevX = x;
+        prevY = y;
+    }
+    void setWindowReleased(){
+        isPressed = false;
+    }
     
 private:
-
+    bool isPressed = false;
+    float prevX = 0.0f, prevY = 0.0f;
     glm::mat4x4 toMatrix4x4Row(glm::mat4);
 
     glm::mat4x4 toMatrix4x4Column(glm::mat4);
@@ -42,9 +52,8 @@ private:
     } mPointLight;
 
     struct cameraHandler {
-    
         float fov = 45.0f;
-        float aspectRatio = 4.0f / 3.0f;
+        float aspectRatio = 16.0f / 9.0f;
         float zoom = 1.0f;
         glm::quat orientation;
         glm::mat4 projectionMatrix;

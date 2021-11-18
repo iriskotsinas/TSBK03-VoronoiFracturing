@@ -16,7 +16,7 @@
 #include "HalfEdgeMesh.h"
 #include "Scene.h"
 
-class VoronoiDiagram : public Geometry
+class VoronoiDiagram
 {
     public:
         VoronoiDiagram(Geometry* mesh, Scene* s);
@@ -26,8 +26,6 @@ class VoronoiDiagram : public Geometry
         }
         void samplePoints(unsigned int n);
         void fracture();
-        void initialize(glm::vec3);
-        void render(std::vector<glm::mat4x4> sceneMatrices);
         void buildLines();
         void buildTriangles();
         // glm::vec3 enforceBoundaries(glm::vec3 p);

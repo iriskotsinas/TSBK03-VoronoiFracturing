@@ -53,6 +53,7 @@
 // #include "jc_voronoi.h"
 const int WIDTH = 1280;
 const int HEIGHT = 720;
+float fov = 45.0f;
 Scene* scene;
 
 GLFWwindow* InitWindow()
@@ -119,10 +120,23 @@ static void mouse_cursor_callback( GLFWwindow * window, int button, int action, 
             
     }
 }
+
 void mouseDragged(GLFWwindow* window, double x, double y)
 {
     // std::cout<<"dragged: x: "<<x<<", y: "<<y<<std::endl;
     scene->setCameraRotation(x, y);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov >= 1.0f && fov <= 45.0f)
+        fov -= yoffset;
+    if (fov <= 1.0f)
+        fov = 1.0f;
+    if (fov >= 45.0f)
+        fov = 45.0f;
 }
 
 int main( void )
@@ -134,6 +148,7 @@ int main( void )
 
     {
         Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+
         scene = new Scene();
         VoronoiDiagram* vd = new VoronoiDiagram(plane, scene);
         vd->samplePoints(50);

@@ -38,13 +38,13 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
     GLCall(glGenVertexArrays(1, &vertexArrayID));
     GLCall(glBindVertexArray(vertexArrayID));
 
-    Shader shader("src/res/shaders/Basic.shader");
+    Shader shader("src/res/shaders/Phong.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
     shaderProgram = shader.getProgram();
 
     MVPLoc          = glGetUniformLocation(shaderProgram, "MVP");
-    // MVLoc           = glGetUniformLocation(shaderProgram, "MV");
+    MVLoc           = glGetUniformLocation(shaderProgram, "MV");
     // MVLightLoc      = glGetUniformLocation(shaderProgram, "MV_light");
     // NMLoc           = glGetUniformLocation(shaderProgram, "NM");
     // lightPosLoc     = glGetUniformLocation(shaderProgram, "lightPos");
@@ -85,28 +85,29 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
 
     GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0], GL_STATIC_DRAW));
 
-    GLCall(glEnableVertexAttribArray(1));
+    GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Color")));
     GLCall(glVertexAttribPointer(
-            1,
+            glGetAttribLocation(shaderProgram, "in_Color"),
             4,                          // size
             GL_FLOAT,                   // type
             GL_FALSE,                   // normalized?
             0,                          // stride
             0  // array buffer offset
     ));
-    // glGenBuffers(1, &normalBuffer);
-    // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    // glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW);
-    // // 2nd attribute buffer : normals
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(
-    //     1,                          // attribute 1. I.e. layout 1 in shader
-    //     3,                          // size
-    //     GL_FLOAT,                   // type
-    //     GL_FALSE,                   // normalized?
-    //     0,                          // stride
-    //     reinterpret_cast<void*>(0)  // array buffer offset
-    // );
+
+    GLCall(glGenBuffers(1, &normalBuffer));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, normalBuffer));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW));
+     // 2nd attribute buffer : normals
+    GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Normal")));
+    GLCall(glVertexAttribPointer(
+         glGetAttribLocation(shaderProgram, "in_Normal"),                          // attribute 1. I.e. layout 1 in shader
+         3,                          // size
+         GL_FLOAT,                   // type
+         GL_FALSE,                   // normalized?
+         0,                          // stride
+         reinterpret_cast<void*>(0)  // array buffer offset
+     ));
 
     std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
 }
@@ -116,6 +117,7 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)
     GLCall(glUseProgram(shaderProgram));
 
     glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
+    glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV][0][0]);
 
     GLCall(glBindVertexArray(vertexArrayID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
@@ -139,7 +141,18 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)
                             GL_STATIC_DRAW));
 
         glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size());
+
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, normalBuffer));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0],
+                            GL_STATIC_DRAW));
     }
+}
+
+glm::vec3 HalfEdgeMesh::calculateNormal(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2) {
+    glm::vec3 edge0 = v1 - v0;
+    glm::vec3 edge1 = v2 - v0;
+
+    return glm::normalize(glm::cross(edge0, edge1));
 }
 
 void HalfEdgeMesh::buildRenderData()
@@ -147,13 +160,21 @@ void HalfEdgeMesh::buildRenderData()
     jcv_graphedge *edge = mEdges[0];
     while (edge)
     {
+        glm::vec3 p0 = glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f);
+        glm::vec3 p1 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
+
         addVertex(siteCenter);
-        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
-        addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f));
+        addVertex(p0);
+        addVertex(p1);
 
         addColor(mColor);
         addColor(mColor);
         addColor(mColor);
+
+        glm::vec3 normal = calculateNormal(siteCenter, p0, p1);
+        addNormal(normal);
+        addNormal(normal);
+        addNormal(normal);
 
         edge = edge->next;
     }
@@ -170,14 +191,22 @@ void HalfEdgeMesh::extrude()
     // Duplicate planes with triangles
     while (edge)
     {
+        glm::vec3 p0 = glm::vec3(edge->pos[1].x, edge->pos[1].y, -offset);
+        glm::vec3 p1 = glm::vec3(edge->pos[0].x, edge->pos[0].y, -offset);
+
         offsetEdges.push_back(edge);
-        addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, -offset));
-        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, -offset));
+        addVertex(p0);
+        addVertex(p1);
         addVertex(siteCenterOffset);
 
         addColor(mColor);
         addColor(mColor);
         addColor(mColor);
+
+        glm::vec3 normal = calculateNormal(p0, p1, siteCenterOffset);
+        addNormal(normal);
+        addNormal(normal);
+        addNormal(normal);
 
         edge = edge->next;
     }
@@ -188,15 +217,31 @@ void HalfEdgeMesh::extrude()
     // Connect planes
     while (edge && edgeOffset)
     {
+        glm::vec3 p0, p1, p2, p3;
+        p0 = glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f);
+        p1 = glm::vec3(edgeOffset->pos[0].x, edgeOffset->pos[0].y, -offset);
+        p2 = glm::vec3(edgeOffset->pos[1].x, edgeOffset->pos[1].y, -offset);
+        p3 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
+
         // First triangle
-        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
-        addVertex(glm::vec3(edgeOffset->pos[0].x, edgeOffset->pos[0].y, -offset));
-        addVertex(glm::vec3(edgeOffset->pos[1].x, edgeOffset->pos[1].y, -offset));
+        addVertex(p0);
+        addVertex(p1);
+        addVertex(p2);
+
+        glm::vec3 normal0 = calculateNormal(p0, p1, p2);
+        addNormal(normal0);
+        addNormal(normal0);
+        addNormal(normal0);
 
         // Second triangle
-        addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
-        addVertex(glm::vec3(edgeOffset->pos[1].x, edgeOffset->pos[1].y, -offset));
-        addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f));
+        addVertex(p0);
+        addVertex(p2);
+        addVertex(p3);
+
+        glm::vec3 normal1 = calculateNormal(p0, p2, p3);
+        addNormal(normal1);
+        addNormal(normal1);
+        addNormal(normal1);
 
         addColor(mColor);
         addColor(mColor);

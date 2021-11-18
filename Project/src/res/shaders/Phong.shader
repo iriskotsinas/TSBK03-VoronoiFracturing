@@ -1,0 +1,58 @@
+#shader vertex
+#version 330 core
+
+in vec3 in_Position;
+in vec3 in_Normal;
+in vec4 in_Color;
+out vec3 exNormal; // Phong
+out vec3 exSurface; // Phong (specular)
+out vec4 out_Color;
+
+uniform mat4 MV;
+uniform mat4 MVP;
+
+void main(void)
+{
+    exNormal = inverse(transpose(mat3(MV))) * in_Normal; // Phong, "fake" normal transformation
+
+    exSurface = vec3(MV * vec4(in_Position, 1.0)); // Don't include projection here - we only want to go to view coordinates
+
+    gl_Position = MVP * vec4(in_Position, 1.0); // This should include projection
+    out_Color = in_Color;
+}
+
+#shader fragment
+#version 330 core
+
+// Simplified Phong: No materials, only one, hard coded light source
+// (in view coordinates) and no ambient
+
+// Note: Simplified! In particular, the light source is given in view
+// coordinates, which means that it will follow the camera.
+// You usually give light sources in world coordinates.
+
+out vec4 outColor;
+in vec3 exNormal; // Phong
+in vec4 out_Color;
+in vec3 exSurface; // Phong (specular)
+
+void main(void)
+{
+    const vec3 light = vec3(0.58, 0.58, 0.58); // Given in VIEW coordinates! You usually specify light sources in world coordinates.
+    float diffuse, specular, shade;
+
+    // Diffuse
+    diffuse = dot(normalize(exNormal), light);
+    diffuse = max(0.0, diffuse); // No negative light
+
+    // Specular
+    vec3 r = reflect(-light, normalize(exNormal));
+    vec3 v = normalize(-exSurface); // View direction
+    specular = dot(r, v);
+    if (specular > 0.0)
+    specular = 5.0 * pow(specular, 150.0);
+    specular = max(specular, 0.0);
+    shade = 0.7*diffuse + 1.0*specular;
+    outColor = vec4(shade, shade, shade, 1.0) * out_Color;
+}
+

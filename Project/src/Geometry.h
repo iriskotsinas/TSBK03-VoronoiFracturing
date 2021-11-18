@@ -76,8 +76,9 @@ class Geometry{
 
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
-
         std::vector< glm::vec4> mOrderedColorList;
+        std::vector<glm::vec3> mOrderedNormalList;
+
         glm::mat4 mTransMat;
         std::string mObjName;
 

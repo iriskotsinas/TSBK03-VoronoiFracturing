@@ -14,13 +14,13 @@
             GLCall(glGenVertexArrays(1, &vertexArrayID));
             GLCall(glBindVertexArray(vertexArrayID));
 
-            shader = Shader("src/res/shaders/SimpleColor.shader", 1);
+            Shader shader("src/res/shaders/Phong.shader", 0);
             shader.Bind();
-            shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
+            //shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
             shaderProgram = shader.getProgram();
 
             MVPLoc          = glGetUniformLocation(shaderProgram, "MVP");
-            // MVLoc           = glGetUniformLocation(shaderProgram, "MV");
+            MVLoc           = glGetUniformLocation(shaderProgram, "MV");
             // MVLightLoc      = glGetUniformLocation(shaderProgram, "MV_light");
             // NMLoc           = glGetUniformLocation(shaderProgram, "NM");
             // lightPosLoc     = glGetUniformLocation(shaderProgram, "lightPos");
@@ -47,41 +47,80 @@
                 0,                          // stride
                 reinterpret_cast<void*>(0)  // array buffer offset
             ));
+
+            if (debug)
+            {
+                GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
+            } else {
+                GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
+            }
+
+            //Vertex Colors attribute buffer
+            GLCall(glGenBuffers(1, &colorBuffer));
+            GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+
+            GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0], GL_STATIC_DRAW));
+
+            GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Color")));
+            GLCall(glVertexAttribPointer(
+                    glGetAttribLocation(shaderProgram, "in_Color"),
+                    4,                          // size
+                    GL_FLOAT,                   // type
+                    GL_FALSE,                   // normalized?
+                    0,                          // stride
+                    0  // array buffer offset
+            ));
+
+            GLCall(glGenBuffers(1, &normalBuffer));
+            GLCall(glBindBuffer(GL_ARRAY_BUFFER, normalBuffer));
+            GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW));
+            // 2nd attribute buffer : normals
+            GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Normal")));
+            GLCall(glVertexAttribPointer(
+                glGetAttribLocation(shaderProgram, "in_Normal"),                          // attribute 1. I.e. layout 1 in shader
+                3,                          // size
+                GL_FLOAT,                   // type
+                GL_FALSE,                   // normalized?
+                0,                          // stride
+                reinterpret_cast<void*>(0)  // array buffer offset
+            ));
             std::cout<<"Plane Initialized"<<std::endl;
         }
 
         void Plane::render(std::vector<glm::mat4x4> sceneMatrices)
         {
-            GLCall(glUseProgram(shaderProgram));
-            //glDisable( GL_BLEND );
-            //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-            
-            glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
-            // glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV](0, 0));
-            // glUniformMatrix4fv(MVLightLoc, 1, GL_FALSE, &sceneMatrices[I_MV_LIGHT](0, 0));
-            // glUniformMatrix4fv(NMLoc, 1, GL_FALSE, &sceneMatrices[I_NM](0, 0));
-            // glUniform4f(colorLoc, mMaterial.color[0], mMaterial.color[1], mMaterial.color[2], mMaterial.color[3]);
-            // glUniform4f(lightAmbLoc, mMaterial.ambient[0], mMaterial.ambient[1], mMaterial.ambient[2], mMaterial.ambient[3]);
-            // glUniform4f(lightDifLoc, mMaterial.diffuse[0], mMaterial.diffuse[1], mMaterial.diffuse[2], mMaterial.diffuse[3]);
-            // glUniform4f(lightSpeLoc, mMaterial.specular[0], mMaterial.specular[1], mMaterial.specular[2], mMaterial.specular[3]);
-            // glUniform1f(specularityLoc, mMaterial.specularity);
-            // glUniform1f(shinynessLoc, mMaterial.shinyness);
+                GLCall(glUseProgram(shaderProgram));
 
-            // Rebind the buffer data, vertices are now updated
-            GLCall(glBindVertexArray(vertexArrayID));
-            GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-            GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
+    glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
+    glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV][0][0]);
 
-            // Rebind the buffer data, normals are now updated
-            // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-            // glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW);
-            // Draw the triangle!
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size())); // 3 indices starting at 0 -> 1 triangle
-            
-            // Unbind
-            //    GLCall(glBindVertexArray(0));
-            //    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-            //    GLCall(glDisableVertexAttribArray(0));
+    GLCall(glBindVertexArray(vertexArrayID));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
+
+    if (debug)
+    {
+        //Lines
+        GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0],
+                            GL_STATIC_DRAW));
+        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
+
+        glDrawArrays(GL_LINES, 0, orderedEdgePoints.size());
+    } else {
+        //Triangles
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0],
+                            GL_STATIC_DRAW));
+        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
+
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0],
+                            GL_STATIC_DRAW));
+
+        glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size());
+
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, normalBuffer));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0],
+                            GL_STATIC_DRAW));
+    }
         }
 
         void Plane::generatePlane(float width, float height, glm::vec3 pos)

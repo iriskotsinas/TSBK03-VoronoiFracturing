@@ -10,10 +10,9 @@
 #define I_MV_LIGHT 2
 #define I_NM 3
 
-class Scene{
-
+class Scene
+{
 public:
-
     Scene() = default;
 
     ~Scene() = default;
@@ -25,12 +24,16 @@ public:
     void addGeometry(Geometry*);
 
     void setCameraRotation(float x, float y);
-    void setWindowPressed(float x, float y){
+
+    void setWindowPressed(float x, float y)
+    {
         isPressed = true;
         prevX = x;
         prevY = y;
     }
-    void setWindowReleased(){
+
+    void setWindowReleased()
+    {
         isPressed = false;
     }
     
@@ -47,12 +50,14 @@ private:
     
     std::vector<glm::mat4x4>mSceneMatrices;
 
-    struct LightSource {
+    struct LightSource
+    {
         glm::vec3 color;
         glm::vec3 position;
     } mPointLight;
 
-    struct cameraHandler {
+    struct cameraHandler
+    {
         float fov = 45.0f;
         float aspectRatio = 16.0f / 9.0f;
         float zoom = 1.0f;

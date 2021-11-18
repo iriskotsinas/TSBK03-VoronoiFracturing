@@ -73,7 +73,8 @@ GLFWwindow* InitWindow()
 
     // Open a window and create its OpenGL context
     GLFWwindow* window = glfwCreateWindow( WIDTH, HEIGHT, "Voronoi Fracturing TSBK03", NULL, NULL);
-    if( window == NULL ){
+    if ( window == NULL )
+    {
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         getchar();
         glfwTerminate();
@@ -84,7 +85,8 @@ GLFWwindow* InitWindow()
 
     //Initialize GLEW
     glewExperimental = true; // Needed for core profile
-    if (glewInit() != GLEW_OK) {
+    if (glewInit() != GLEW_OK)
+    {
         fprintf(stderr, "Failed to initialize GLEW\n");
         getchar();
         glfwTerminate();
@@ -98,10 +100,12 @@ GLFWwindow* InitWindow()
 
     return window;
 }
+
 static void mouse_cursor_callback( GLFWwindow * window, int button, int action, int mods)  
 {
 
-  if (button == GLFW_MOUSE_BUTTON_LEFT) {
+  if (button == GLFW_MOUSE_BUTTON_LEFT)
+  {
         if(GLFW_PRESS == action)
         {
             double x,y;
@@ -115,11 +119,12 @@ static void mouse_cursor_callback( GLFWwindow * window, int button, int action, 
             
     }
 }
-void mouseDragged(GLFWwindow* window, double x, double y) {
-
+void mouseDragged(GLFWwindow* window, double x, double y)
+{
     // std::cout<<"dragged: x: "<<x<<", y: "<<y<<std::endl;
     scene->setCameraRotation(x, y);
 }
+
 int main( void )
 {
 

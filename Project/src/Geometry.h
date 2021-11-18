@@ -38,7 +38,8 @@ struct Vertex;
 
 class Geometry{
      protected:
-        struct HalfEdge {
+        struct HalfEdge
+        {
             HalfEdge();
             Vertex* vert;
             Face* face; 
@@ -46,7 +47,9 @@ class Geometry{
             HalfEdge* prev; 
             Face* pair;  
         };
-        struct Vertex {
+
+        struct Vertex
+        {
             Vertex(const glm::vec3& p = glm::vec3(0,0,0),
             const glm::vec3& n = glm::vec3(0,0,0))
             : pos(p),
@@ -55,21 +58,29 @@ class Geometry{
             glm::vec3 normal;
             HalfEdge* edge;    
         };
-        struct Face {
+
+        struct Face
+        {
             Face(const glm::vec3& n = glm::vec3(0,0,0)) 
             : normal(n) {}
             glm::vec3 normal;
             HalfEdge* edge; 
         };
+
         bool debug = false;
+
         std::vector<glm::vec3> orderedEdgePoints;
-    // The vertices in the mesh
+
+        // The vertices in the mesh
         std::vector<glm::vec3> mVerts;
+
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
+
         std::vector< glm::vec4> mOrderedColorList;
         glm::mat4 mTransMat;
         std::string mObjName;
+
         // Shader data
         GLuint vertexArrayID;
         GLuint vertexBuffer;
@@ -92,7 +103,7 @@ class Geometry{
         GLint shinynessLoc;     // How much specularity (magnitude)
 
     public:
-        Geometry(){};
+        Geometry() {};
         virtual ~Geometry() = default;
 
         virtual void initialize(glm::vec3) = 0;
@@ -100,37 +111,49 @@ class Geometry{
         virtual void render(std::vector<glm::mat4x4>) = 0;
 
         glm::mat4 getTransMat() { return mTransMat; }
-        void setTransMat(glm::mat4 model) { 
+        void setTransMat(glm::mat4 model)
+        {
             mTransMat = model; 
         }
 
-        void addVertex(glm::vec3 v) { mVerts.push_back(v);}
-        void setName(std::string s){
+        void addVertex(glm::vec3 v) { mVerts.push_back(v); }
+        void setName(std::string s)
+        {
             mObjName = s;
         }
-        int getVertCount(){
+
+        int getVertCount()
+        {
             return mVerts.size();
         }
-        std::vector<glm::vec3> getVerts(){
+
+        std::vector<glm::vec3> getVerts()
+        {
             return mVerts;
         }
-        void setBoundaries(std::pair< float, float> &x, std::pair< float, float> &y){
+
+        void setBoundaries(std::pair< float, float> &x, std::pair< float, float> &y)
+        {
             float min_x = std::numeric_limits<float>::infinity();
             float max_x = std::numeric_limits<float>::min();
             float min_y = std::numeric_limits<float>::infinity();
             float max_y = std::numeric_limits<float>::min();
             for (auto v : mVerts)
             {
-                if(v[0] < min_x){
+                if(v[0] < min_x)
+                {
                     min_x = v[0];
                 }
-                if(v[0] > max_x){
+                if(v[0] > max_x)
+                {
                     max_x = v[0];
                 }
-                if(v[1] < min_y){
+                if(v[1] < min_y)
+                {
                     min_y = v[1];
                 }
-                if(v[1] > max_y){
+                if(v[1] > max_y)
+                {
                     max_y = v[1];
                 }
             }
@@ -138,6 +161,5 @@ class Geometry{
             x.second = max_x;
             y.first = min_y;
             y.second = max_y;
-            
         }
 };

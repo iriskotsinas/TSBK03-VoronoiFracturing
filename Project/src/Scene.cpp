@@ -19,7 +19,8 @@
 		// #include <GL/glut.h>
 	#endif
 #endif
-void Scene::initialize() {
+void Scene::initialize()
+{
     // Init the lightsource parameters
     mPointLight.position = glm::vec3(0.0f, 0.0f, 3.0f);
     mPointLight.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -43,20 +44,23 @@ void Scene::initialize() {
     mSceneMatrices.push_back(glm::mat4x4());
     mSceneMatrices.push_back(glm::mat4x4());
 
-    for(std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
+    for (std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
         (*it)->initialize(mPointLight.position);
     std::cout<<"Scene initialized..."<<std::endl;
 }
-void Scene::addGeometry(Geometry *G) {
 
+void Scene::addGeometry(Geometry *G)
+{
     //updateVoronoiPatterns("icosphere", Matrix4x4<float>());
     mGeometries.push_back(G);
     // G->calculateCenterOfMass();
     // physicsWorld->addGeometry(G->getUniqueVertexList(), G->getWorldCenterOfMass() , type, G->volume());
-
 }
-void Scene::setCameraRotation(float x, float y){
-    if(!isPressed){
+
+void Scene::setCameraRotation(float x, float y)
+{
+    if (!isPressed)
+    {
         return; 
     }
     glm::vec3 p;
@@ -68,10 +72,10 @@ void Scene::setCameraRotation(float x, float y){
     mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, glm::sqrt(p.x*p.x + p.y*p.y) / 100.0f, p);
     prevX = x;
     prevY = y;
-
 }
-void Scene::render() {
 
+void Scene::render()
+{
     glEnable( GL_CULL_FACE );
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -82,8 +86,8 @@ void Scene::render() {
     glm::mat4 modelMatrix;
     // mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f));
     // render Geometries in scene
-    for(std::vector<Geometry*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it) {
-
+    for (std::vector<Geometry*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
+    {
         // The scene modelmatrix is nothing atm, the geometries will have their own model transforms
         modelMatrix = (*it)->getTransMat();
         // (*it)->setTransMat(glm::rotate(modelMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f)));
@@ -106,8 +110,11 @@ void Scene::render() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 }
-glm::mat4x4 Scene::toMatrix4x4Row(glm::mat4 m) {
-    return glm::mat4x4 {
+
+glm::mat4x4 Scene::toMatrix4x4Row(glm::mat4 m)
+{
+    return glm::mat4x4
+    {
         {m[0][0], m[0][1], m[0][2], m[0][3]},
         {m[1][0], m[1][1], m[1][2], m[1][3]},
         {m[2][0], m[2][1], m[2][2], m[2][3]},
@@ -116,8 +123,10 @@ glm::mat4x4 Scene::toMatrix4x4Row(glm::mat4 m) {
 }
 
 
-glm::mat4x4 Scene::toMatrix4x4Column(glm::mat4 m) {
-    return glm::mat4x4 {
+glm::mat4x4 Scene::toMatrix4x4Column(glm::mat4 m)
+{
+    return glm::mat4x4
+    {
         {m[0][0], m[1][0], m[2][0], m[3][0]},
         {m[0][1], m[1][1], m[2][1], m[3][1]},
         {m[0][2], m[1][2], m[2][2], m[3][2]},
@@ -125,8 +134,10 @@ glm::mat4x4 Scene::toMatrix4x4Column(glm::mat4 m) {
     };
 }
 
-glm::mat4x4 Scene::toMatrix4x4(glm::mat3 m) {
-    return glm::mat4x4 {
+glm::mat4x4 Scene::toMatrix4x4(glm::mat3 m)
+{
+    return glm::mat4x4
+    {
         {m[0][0], m[0][1], m[0][2], 0.0f},
         {m[1][0], m[1][1], m[1][2], 0.0f},
         {m[2][0], m[2][1], m[2][2], 0.0f},

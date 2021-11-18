@@ -20,7 +20,8 @@ class VoronoiDiagram : public Geometry
 {
     public:
         VoronoiDiagram(Geometry* mesh, Scene* s);
-        ~VoronoiDiagram(){
+        ~VoronoiDiagram()
+        {
             jcv_diagram_free(&diagram);
         }
         void samplePoints(unsigned int n);

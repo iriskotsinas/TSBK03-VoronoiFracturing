@@ -1,13 +1,13 @@
 #include "HalfEdgeMesh.h"
 
-HalfEdgeMesh::HalfEdgeMesh(std::string s) {
+HalfEdgeMesh::HalfEdgeMesh(std::string s)
+{
     setName(s);
     mTransMat = glm::mat4(1.0f);
-
 }
 
-void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
-
+void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
+{
     std::cout << "\nInitializing Half-Edge mesh ...\n\n";
 
     // mBoundingbox = new Boundingbox(buildVertexData());
@@ -72,12 +72,11 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
         reinterpret_cast<void*>(0)  // array buffer offset
     ));
 
-    if(debug){
+    if (debug)
+    {
         GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0], GL_STATIC_DRAW));
-    }
-    else{
+    } else {
         GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
-
     }
 
     //Vertex Colors attribute buffer
@@ -112,8 +111,8 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition) {
     std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
 }
 
-void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
-
+void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)
+{
     GLCall(glUseProgram(shaderProgram));
 
     glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
@@ -121,7 +120,8 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
     GLCall(glBindVertexArray(vertexArrayID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
 
-    if (debug) {
+    if (debug)
+    {
         //Lines
         GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0],
                             GL_STATIC_DRAW));
@@ -142,9 +142,10 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices) {
     }
 }
 
-void HalfEdgeMesh::buildRenderData() {
+void HalfEdgeMesh::buildRenderData()
+{
     jcv_graphedge *edge = mEdges[0];
-    while( edge )
+    while (edge)
     {
         addVertex(siteCenter);
         addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
@@ -159,14 +160,16 @@ void HalfEdgeMesh::buildRenderData() {
     extrude();
 }
 
-void HalfEdgeMesh::extrude() {
+void HalfEdgeMesh::extrude()
+{
     std::vector<jcv_graphedge*> offsetEdges;
     float offset = 0.5f;
     glm::vec3 siteCenterOffset = glm::vec3(siteCenter.x, siteCenter.y, siteCenter.z-offset);
     jcv_graphedge *edge = mEdges[0];
 
     // Duplicate planes with triangles
-    while (edge) {
+    while (edge)
+    {
         offsetEdges.push_back(edge);
         addVertex(glm::vec3(edge->pos[1].x, edge->pos[1].y, -offset));
         addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, -offset));
@@ -183,7 +186,8 @@ void HalfEdgeMesh::extrude() {
     jcv_graphedge* edgeOffset = offsetEdges[0];
 
     // Connect planes
-    while (edge && edgeOffset) {
+    while (edge && edgeOffset)
+    {
         // First triangle
         addVertex(glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f));
         addVertex(glm::vec3(edgeOffset->pos[0].x, edgeOffset->pos[0].y, -offset));

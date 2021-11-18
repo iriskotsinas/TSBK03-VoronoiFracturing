@@ -6,10 +6,11 @@
             generatePlane(width, height, pos);
             mTransMat = glm::translate(glm::mat4(1.0f),pos);
         }
-        Plane::~Plane(){
 
-        }
-        void Plane::initialize(glm::vec3){
+        Plane::~Plane(){ }
+
+        void Plane::initialize(glm::vec3)
+        {
             GLCall(glGenVertexArrays(1, &vertexArrayID));
             GLCall(glBindVertexArray(vertexArrayID));
 
@@ -48,7 +49,9 @@
             ));
             std::cout<<"Plane Initialized"<<std::endl;
         }
-        void Plane::render(std::vector<glm::mat4x4> sceneMatrices){
+
+        void Plane::render(std::vector<glm::mat4x4> sceneMatrices)
+        {
             GLCall(glUseProgram(shaderProgram));
             //glDisable( GL_BLEND );
             //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -79,9 +82,10 @@
             //    GLCall(glBindVertexArray(0));
             //    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
             //    GLCall(glDisableVertexAttribArray(0));
-
         }
-        void Plane::generatePlane(float width, float height, glm::vec3 pos){
+
+        void Plane::generatePlane(float width, float height, glm::vec3 pos)
+        {
             glm::vec3 v0 = {-width, -height, 0.0f};
             glm::vec3 v1 = {width, height, 0.0f};
             glm::vec3 v2 = {-width, height, 0.0f};

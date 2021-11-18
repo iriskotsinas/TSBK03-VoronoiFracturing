@@ -30,12 +30,6 @@ void Scene::initialize()
         0.1f,                // Near clipping plane
         100.0f);             // far clipping plane
 
-    mCamera.viewMatrix = glm::lookAt(
-        glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),   
-        glm::vec3(0.0f, 0.0f, 0.0f),            
-        glm::vec3(0.0f, 1.0f, 0.0f)) *                                 
-        glm::mat4_cast(mCamera.orientation); 
-
     // Background color
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -47,6 +41,12 @@ void Scene::initialize()
     for (std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
         (*it)->initialize(mPointLight.position);
     std::cout<<"Scene initialized..."<<std::endl;
+}
+
+void Scene::setCameraZoom(float x, float y)
+{
+    if ((mCamera.zoom - y / 5.0f) > 0.1f)
+        mCamera.zoom -= y / 5.0f;
 }
 
 void Scene::addGeometry(Geometry *G)
@@ -69,7 +69,7 @@ void Scene::setCameraRotation(float x, float y)
     p.x = -(prevY-y);
     p.z = 0.0f;
 
-    mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, glm::sqrt(p.x*p.x + p.y*p.y) / 100.0f, p);
+    mCamera.orientation = glm::rotate(mCamera.viewMatrix, glm::sqrt(p.x*p.x + p.y*p.y) / 100.0f, p);
     prevX = x;
     prevY = y;
 }
@@ -82,6 +82,12 @@ void Scene::render()
     
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    mCamera.viewMatrix = glm::lookAt(
+            glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)) *
+                    glm::mat4_cast(mCamera.orientation);
 
     glm::mat4 modelMatrix;
     // std::cout<<"Scene Objects: "<<mGeometries.size()<<std::endl;

@@ -33,46 +33,12 @@
 #define I_MV 1
 #define I_MV_LIGHT 2
 #define I_NM 3
-struct Face;
-struct Vertex;
 
 class Geometry{
      protected:
-        struct HalfEdge
-        {
-            HalfEdge();
-            Vertex* vert;
-            Face* face; 
-            HalfEdge* next;  
-            HalfEdge* prev; 
-            Face* pair;  
-        };
-
-        struct Vertex
-        {
-            Vertex(const glm::vec3& p = glm::vec3(0,0,0),
-            const glm::vec3& n = glm::vec3(0,0,0))
-            : pos(p),
-            normal(n) {}
-            glm::vec3 pos;
-            glm::vec3 normal;
-            HalfEdge* edge;    
-        };
-
-        struct Face
-        {
-            Face(const glm::vec3& n = glm::vec3(0,0,0)) 
-            : normal(n) {}
-            glm::vec3 normal;
-            HalfEdge* edge; 
-        };
-
         bool debug = false;
 
         std::vector<glm::vec3> orderedEdgePoints;
-
-        // The vertices in the mesh
-        std::vector<glm::vec3> mVerts;
 
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
@@ -116,6 +82,39 @@ class Geometry{
         void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
         void addNormal(glm::vec3 n) { mOrderedNormalList.push_back(n); }
 
+        glm::mat4x4 toMatrix4x4Row(glm::mat4 m)
+        {
+            return glm::mat4x4
+                    {
+                            {m[0][0], m[0][1], m[0][2], m[0][3]},
+                            {m[1][0], m[1][1], m[1][2], m[1][3]},
+                            {m[2][0], m[2][1], m[2][2], m[2][3]},
+                            {m[3][0], m[3][1], m[3][2], m[3][3]}
+                    };
+        }
+
+        glm::mat4x4 toMatrix4x4Column(glm::mat4 m)
+        {
+            return glm::mat4x4
+                    {
+                            {m[0][0], m[1][0], m[2][0], m[3][0]},
+                            {m[0][1], m[1][1], m[2][1], m[3][1]},
+                            {m[0][2], m[1][2], m[2][2], m[3][2]},
+                            {m[0][3], m[2][3], m[2][3], m[3][3]}
+                    };
+        }
+
+        glm::mat4x4 toMatrix4x4(glm::mat3 m) const
+        {
+            return glm::mat4x4
+                    {
+                            {m[0][0], m[0][1], m[0][2], 0.0f},
+                            {m[1][0], m[1][1], m[1][2], 0.0f},
+                            {m[2][0], m[2][1], m[2][2], 0.0f},
+                            {0.0f   , 0.0f   , 0.0f   , 1.0f}
+                    };
+        }
+
         glm::vec3 calculateNormal(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2) {
             glm::vec3 edge0 = v1 - v0;
             glm::vec3 edge1 = v2 - v0;
@@ -136,12 +135,12 @@ class Geometry{
 
         int getVertCount()
         {
-            return mVerts.size();
+            return mOrderedVertexList.size();
         }
 
-        std::vector<glm::vec3> getVerts()
+        std::vector<glm::vec3> getVerts() const
         {
-            return mVerts;
+            return mOrderedVertexList;
         }
 
         void setBoundaries(std::pair< float, float> &x, std::pair< float, float> &y)
@@ -175,8 +174,21 @@ class Geometry{
             y.second = max_y;
         }
 
-        void rotateX()
+        void rotateX(float radians)
         {
-            mTransMat = glm::rotate(mTransMat, glm::pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f));
+            mTransMat = glm::rotate(mTransMat, radians, glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+
+        glm::vec4 getGeometryWorldPosition() const
+        {
+            glm::vec4 tmpPos = glm::vec4(0.0f);
+            for (auto v : mOrderedVertexList)
+            {
+              tmpPos += glm::vec4(v, 1.0f);
+            }
+            tmpPos = toMatrix4x4(glm::inverse(mTransMat)) * tmpPos;
+            tmpPos /= mOrderedVertexList.size();
+
+            return tmpPos;
         }
 };

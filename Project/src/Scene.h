@@ -24,6 +24,7 @@ public:
     void addGeometry(Geometry*);
 
     void setCameraRotation(float x, float y);
+    void setCameraZoom(float x, float y);
 
     void setWindowPressed(float x, float y)
     {
@@ -36,7 +37,7 @@ public:
     {
         isPressed = false;
     }
-    
+
 private:
     bool isPressed = false;
     float prevX = 0.0f, prevY = 0.0f;

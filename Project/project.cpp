@@ -53,7 +53,6 @@
 // #include "jc_voronoi.h"
 const int WIDTH = 1280;
 const int HEIGHT = 720;
-float fov = 45.0f;
 Scene* scene;
 
 GLFWwindow* InitWindow()
@@ -127,16 +126,8 @@ void mouseDragged(GLFWwindow* window, double x, double y)
     scene->setCameraRotation(x, y);
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    if (fov >= 1.0f && fov <= 45.0f)
-        fov -= yoffset;
-    if (fov <= 1.0f)
-        fov = 1.0f;
-    if (fov >= 45.0f)
-        fov = 45.0f;
+void mouseScroll(GLFWwindow* window, double x, double y) {
+    scene->setCameraZoom(x, y);
 }
 
 int main( void )
@@ -148,8 +139,8 @@ int main( void )
 
     {
         Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-        Plane* groundPlane = new Plane(2.0f, 2.0f, glm::vec3(0.5f, 0.5f, -1.0f));
-        //groundPlane->rotateX();
+        Plane* groundPlane = new Plane(8.0f, 8.0f, glm::vec3(0.0f, -4.0f, 0.0f));
+        groundPlane->rotateX(-glm::pi<float>() / 2.0f);
         scene = new Scene();
 
         VoronoiDiagram* vd = new VoronoiDiagram(plane);
@@ -164,6 +155,7 @@ int main( void )
         scene->initialize();
 
         glfwSetCursorPosCallback(window, mouseDragged);
+        glfwSetScrollCallback(window, mouseScroll);
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

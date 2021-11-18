@@ -19,13 +19,13 @@
 class VoronoiDiagram
 {
     public:
-        VoronoiDiagram(Geometry* mesh, Scene* s);
+        VoronoiDiagram(Geometry* mesh);
         ~VoronoiDiagram()
         {
             jcv_diagram_free(&diagram);
         }
         void samplePoints(unsigned int n);
-        void fracture();
+        std::vector<Geometry*> fracture();
         void buildLines();
         void buildTriangles();
         // glm::vec3 enforceBoundaries(glm::vec3 p);
@@ -34,5 +34,4 @@ class VoronoiDiagram
         std::vector<jcv_point> points;
         Geometry* mesh;
         jcv_diagram diagram;
-        Scene* scene;
 };

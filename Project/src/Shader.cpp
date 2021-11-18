@@ -140,8 +140,8 @@ GLuint Shader::CreateShader(const std::string& vertexShader, const std::string& 
         GLsizei log_length = 0;
         GLchar message[1024];
         GLCall( glGetProgramInfoLog(program, 1024, &log_length, message) );
-        //std::cout << "Failed to link program" << std::endl;
-        //std::cout << message << std::endl;
+        std::cout << "Failed to link program" << std::endl;
+        std::cout << message << std::endl;
     }
 
     GLCall( glValidateProgram(program) );

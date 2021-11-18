@@ -152,9 +152,12 @@ int main( void )
         //groundPlane->rotateX();
         scene = new Scene();
 
-        VoronoiDiagram* vd = new VoronoiDiagram(plane, scene);
+        VoronoiDiagram* vd = new VoronoiDiagram(plane);
         vd->samplePoints(50);
-        vd->fracture();
+        std::vector<Geometry*> fractures = vd->fracture();
+        for(auto g : fractures){
+            scene->addGeometry(g);
+        }
         scene->addGeometry(groundPlane);
 
         //scene->addGeometry(plane);

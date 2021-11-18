@@ -1,7 +1,7 @@
 #include "VoronoiDiagram.h"
 
-VoronoiDiagram::VoronoiDiagram(Geometry* _mesh, Scene* s)
-    :mesh{_mesh}, scene{s}
+VoronoiDiagram::VoronoiDiagram(Geometry* _mesh)
+    :mesh{_mesh}
 {
     mesh->setBoundaries(x, y);
 }
@@ -24,7 +24,7 @@ void VoronoiDiagram::samplePoints(unsigned int n)
     std::cout<<"VoronoiDiagram points sampled"<<std::endl;
 }
 
-void VoronoiDiagram::fracture()
+std::vector<Geometry*> VoronoiDiagram::fracture()
 {
 
     //Fortune Sweep
@@ -58,13 +58,30 @@ void VoronoiDiagram::fracture()
     std::cout<<"Number of Sites: "<<diagram.numsites <<std::endl;
 
     //Building data structure for rendering
-//    if (debug)
-//    {
-//        buildLines();
-//    } else {
-        buildTriangles();
-    //}
+    std::vector<Geometry*> fractures;
+    std::random_device rd;
+    std::mt19937 e2(rd());
+    std::uniform_real_distribution<> dist(0.0f, 1.0f);
+
+    const jcv_site* sites = jcv_diagram_get_sites( &diagram );
+    for ( int i = 0; i < diagram.numsites; ++i )
+    {
+        const jcv_site* site = &sites[i];
+        glm::vec4 siteColor = glm::vec4(dist(e2), dist(e2), dist(e2), 1.0f);
+        const jcv_graphedge* e = site->edges;
+
+        HalfEdgeMesh* mesh = new HalfEdgeMesh("site");
+        mesh->setColor(siteColor);
+        mesh->setSiteCenter(glm::vec3(site->p.x, site->p.y, 0.0f));
+
+        while (e) {
+            mesh->addHalfEdge(e);
+            e = e->next;
+        }
+        fractures.push_back(mesh);
+    }
     std::cout<<"VoronoiDiagram fractured"<<std::endl;
+    return fractures;
 }
 
 // glm::vec3 VoronoiDiagram::enforceBoundaries(glm::vec3 p){
@@ -100,25 +117,5 @@ void VoronoiDiagram::fracture()
 
 void VoronoiDiagram::buildTriangles()
 {
-    std::random_device rd;
-    std::mt19937 e2(rd());
-    std::uniform_real_distribution<> dist(0.0f, 1.0f);
 
-    const jcv_site* sites = jcv_diagram_get_sites( &diagram );
-    for ( int i = 0; i < diagram.numsites; ++i )
-    {
-        const jcv_site* site = &sites[i];
-        glm::vec4 siteColor = glm::vec4(dist(e2), dist(e2), dist(e2), 1.0f);
-        const jcv_graphedge* e = site->edges;
-
-        HalfEdgeMesh* mesh = new HalfEdgeMesh("site");
-        mesh->setColor(siteColor);
-        mesh->setSiteCenter(glm::vec3(site->p.x, site->p.y, 0.0f));
-
-        while (e) {
-            mesh->addHalfEdge(e);
-            e = e->next;
-        }
-        scene->addGeometry(mesh);
-    }
 }

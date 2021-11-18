@@ -84,6 +84,7 @@ void Scene::render()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glm::mat4 modelMatrix;
+    std::cout<<"Scene Objects: "<<mGeometries.size()<<std::endl;
     // mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f));
     // render Geometries in scene
     for (std::vector<Geometry*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)

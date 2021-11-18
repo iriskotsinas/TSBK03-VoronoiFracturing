@@ -4,7 +4,7 @@
         {
             setName("Plane");
             generatePlane(width, height, pos);
-            mTransMat = glm::translate(glm::mat4(1.0f),pos);
+            mTransMat = glm::translate(glm::mat4(1.0f), pos);
         }
 
         Plane::~Plane(){ }
@@ -14,7 +14,7 @@
             GLCall(glGenVertexArrays(1, &vertexArrayID));
             GLCall(glBindVertexArray(vertexArrayID));
 
-            shader = Shader("src/res/shaders/SimpleColor.shader");
+            shader = Shader("src/res/shaders/SimpleColor.shader", 1);
             shader.Bind();
             shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
             shaderProgram = shader.getProgram();
@@ -35,7 +35,7 @@
 
             GLCall(glGenBuffers(1, &vertexBuffer));
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-            GLCall(glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW));
+            GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
 
             // // 1st attribute buffer : vertices
             GLCall(glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "in_Position")));
@@ -70,13 +70,13 @@
             // Rebind the buffer data, vertices are now updated
             GLCall(glBindVertexArray(vertexArrayID));
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-            GLCall(glBufferData(GL_ARRAY_BUFFER, mVerts.size() * sizeof(glm::vec3), &mVerts[0], GL_STATIC_DRAW));
+            GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0], GL_STATIC_DRAW));
 
             // Rebind the buffer data, normals are now updated
             // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
             // glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0], GL_STATIC_DRAW);
             // Draw the triangle!
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, mVerts.size())); // 3 indices starting at 0 -> 1 triangle
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size())); // 3 indices starting at 0 -> 1 triangle
             
             // Unbind
             //    GLCall(glBindVertexArray(0));
@@ -86,16 +86,36 @@
 
         void Plane::generatePlane(float width, float height, glm::vec3 pos)
         {
-            glm::vec3 v0 = {-width, -height, 0.0f};
-            glm::vec3 v1 = {width, height, 0.0f};
-            glm::vec3 v2 = {-width, height, 0.0f};
-            glm::vec3 v3 = {width, -height, 0.0f};
+            glm::vec3 v0 = {pos.x-width, pos.y-height, pos.z};
+            glm::vec3 v1 = {pos.x+width, pos.y+height, pos.z};
+            glm::vec3 v2 = {pos.x-width, pos.y+height, pos.z};
+            glm::vec3 v3 = {pos.x+width, pos.y-height, pos.z};
+
             //First Triangle
             addVertex(v0);
             addVertex(v1);
             addVertex(v2);
+
+            glm::vec3 normal0 = calculateNormal(v0, v1, v2);
+            addNormal(normal0);
+            addNormal(normal0);
+            addNormal(normal0);
+
+            addColor(mColor);
+            addColor(mColor);
+            addColor(mColor);
+
             //Second Triangle
             addVertex(v0);
             addVertex(v3);
             addVertex(v1);
+
+            glm::vec3 normal1 = calculateNormal(v0, v3, v1);
+            addNormal(normal1);
+            addNormal(normal1);
+            addNormal(normal1);
+
+            addColor(mColor);
+            addColor(mColor);
+            addColor(mColor);
         }

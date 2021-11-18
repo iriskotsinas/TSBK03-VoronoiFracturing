@@ -5,8 +5,8 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string& filepath)
-    : m_RendererID(0),  m_FilePath(filepath)
+Shader::Shader(const std::string& filepath, GLuint id)
+    : m_RendererID(id),  m_FilePath(filepath)
 {
     ShaderProgramSource source = ParseShader(filepath);
 
@@ -99,7 +99,7 @@ GLuint Shader::CompileShader(GLuint type, const std::string& source)
     // Error handling
     int result;
     GLCall( glGetShaderiv(id, GL_COMPILE_STATUS, &result) );
-    std::cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader compile status: " << result << std::endl;
+    // std::cout << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader compile status: " << result << std::endl;
     if ( result == GL_FALSE )
     {
         int length;
@@ -134,14 +134,14 @@ GLuint Shader::CreateShader(const std::string& vertexShader, const std::string& 
     GLint program_linked;
 
     GLCall( glGetProgramiv(program, GL_LINK_STATUS, &program_linked) );
-    std::cout << "Program link status: " << program_linked << std::endl;
+    //std::cout << "Program link status: " << program_linked << std::endl;
     if (program_linked != GL_TRUE)
     {
         GLsizei log_length = 0;
         GLchar message[1024];
         GLCall( glGetProgramInfoLog(program, 1024, &log_length, message) );
-        std::cout << "Failed to link program" << std::endl;
-        std::cout << message << std::endl;
+        //std::cout << "Failed to link program" << std::endl;
+        //std::cout << message << std::endl;
     }
 
     GLCall( glValidateProgram(program) );

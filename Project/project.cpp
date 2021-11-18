@@ -148,14 +148,16 @@ int main( void )
 
     {
         Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-
+        Plane* groundPlane = new Plane(2.0f, 2.0f, glm::vec3(0.5f, 0.5f, -1.0f));
+        //groundPlane->rotateX();
         scene = new Scene();
+
         VoronoiDiagram* vd = new VoronoiDiagram(plane, scene);
         vd->samplePoints(50);
         vd->fracture();
+        scene->addGeometry(groundPlane);
 
-        // scene->addGeometry(plane);
-        // scene->addGeometry(vd);
+        //scene->addGeometry(plane);
         scene->initialize();
 
         glfwSetCursorPosCallback(window, mouseDragged);

@@ -82,7 +82,9 @@ class Geometry{
         glm::mat4 mTransMat;
         std::string mObjName;
 
-        // Shader data
+        glm::vec4 mColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+    // Shader data
         GLuint vertexArrayID;
         GLuint vertexBuffer;
         GLuint colorBuffer;
@@ -110,6 +112,16 @@ class Geometry{
         virtual void initialize(glm::vec3) = 0;
 
         virtual void render(std::vector<glm::mat4x4>) = 0;
+        void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
+        void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
+        void addNormal(glm::vec3 n) { mOrderedNormalList.push_back(n); }
+
+        glm::vec3 calculateNormal(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2) {
+            glm::vec3 edge0 = v1 - v0;
+            glm::vec3 edge1 = v2 - v0;
+
+            return glm::normalize(glm::cross(edge0, edge1));
+        }
 
         glm::mat4 getTransMat() { return mTransMat; }
         void setTransMat(glm::mat4 model)
@@ -117,7 +129,6 @@ class Geometry{
             mTransMat = model; 
         }
 
-        void addVertex(glm::vec3 v) { mVerts.push_back(v); }
         void setName(std::string s)
         {
             mObjName = s;
@@ -139,7 +150,7 @@ class Geometry{
             float max_x = std::numeric_limits<float>::min();
             float min_y = std::numeric_limits<float>::infinity();
             float max_y = std::numeric_limits<float>::min();
-            for (auto v : mVerts)
+            for (auto v : mOrderedVertexList)
             {
                 if(v[0] < min_x)
                 {
@@ -162,5 +173,10 @@ class Geometry{
             x.second = max_x;
             y.first = min_y;
             y.second = max_y;
+        }
+
+        void rotateX()
+        {
+            mTransMat = glm::rotate(mTransMat, glm::pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f));
         }
 };

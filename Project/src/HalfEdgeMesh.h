@@ -45,9 +45,8 @@ class HalfEdgeMesh : public Geometry{
         // The faces in the mesh
         std::vector<Face> mFaces;
         // Vertex list in drawing order
-        std::vector<glm::vec3> mOrderedVertexList;
+        //std::vector<glm::vec3> mOrderedVertexList;
         glm::vec3 siteCenter;
-        glm::vec4 mColor;
 
     public:
         HalfEdgeMesh(std::string s);
@@ -62,14 +61,11 @@ class HalfEdgeMesh : public Geometry{
         glm::mat4 getTransMat() { return mTransMat; }
         void buildRenderData();
 
-        glm::vec3 calculateNormal(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2);
-
-        void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
-        void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
+        //void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
+        //void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
         void addHalfEdge(const jcv_graphedge* e) {
             mEdges.push_back((jcv_graphedge*)e);
         }
-        void addNormal(glm::vec3 v) { mOrderedNormalList.push_back(v); }
         void setSiteCenter(glm::vec3 s) { siteCenter = s; }
         void setColor(glm::vec4 c) { mColor = c; }
 };

@@ -8,7 +8,7 @@ HalfEdgeMesh::HalfEdgeMesh(std::string s)
 
 void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
 {
-    std::cout << "\nInitializing Half-Edge mesh ...\n\n";
+    //std::cout << "\nInitializing Half-Edge mesh ...\n\n";
 
     // mBoundingbox = new Boundingbox(buildVertexData());
 
@@ -38,9 +38,9 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
     GLCall(glGenVertexArrays(1, &vertexArrayID));
     GLCall(glBindVertexArray(vertexArrayID));
 
-    Shader shader("src/res/shaders/Phong.shader");
+    Shader shader("src/res/shaders/Phong.shader", 0);
     shader.Bind();
-    shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
+    //shader.SetUniform4f("u_Color", 0.0, 1.0, 1.0, 1.0);
     shaderProgram = shader.getProgram();
 
     MVPLoc          = glGetUniformLocation(shaderProgram, "MVP");
@@ -109,7 +109,7 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
          reinterpret_cast<void*>(0)  // array buffer offset
      ));
 
-    std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
+    //std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
 }
 
 void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)
@@ -146,13 +146,6 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)
         GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0],
                             GL_STATIC_DRAW));
     }
-}
-
-glm::vec3 HalfEdgeMesh::calculateNormal(const glm::vec3 v0, const glm::vec3 v1, const glm::vec3 v2) {
-    glm::vec3 edge0 = v1 - v0;
-    glm::vec3 edge1 = v2 - v0;
-
-    return glm::normalize(glm::cross(edge0, edge1));
 }
 
 void HalfEdgeMesh::buildRenderData()

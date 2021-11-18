@@ -19,7 +19,7 @@ class Shader
 
     public:
         Shader() = default;
-        Shader(const std::string& filepath);
+        Shader(const std::string& filepath, GLuint id);
         ~Shader();
 
         void Bind() const;

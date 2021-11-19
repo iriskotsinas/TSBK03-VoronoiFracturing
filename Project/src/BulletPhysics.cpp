@@ -26,7 +26,7 @@ BulletPhysics::~BulletPhysics()
         delete obj;
     }
 
-    //Delete collsion shapes
+    //Delete collision shapes
     for (int i = 0; i < m_collisionShapes.size(); i++)
     {
         if (m_collisionShapes[i] == 0)

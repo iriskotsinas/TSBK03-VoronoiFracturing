@@ -147,9 +147,9 @@ int main( void )
         vd->samplePoints(50);
         std::vector<Geometry*> fractures = vd->fracture();
         for(auto g : fractures){
-            scene->addGeometry(g);
+            scene->addGeometry(g, 1);
         }
-        scene->addGeometry(groundPlane);
+        scene->addGeometry(groundPlane, 0);
 
         //scene->addGeometry(plane);
         scene->initialize();

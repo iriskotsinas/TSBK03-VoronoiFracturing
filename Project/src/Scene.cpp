@@ -19,6 +19,12 @@
 		// #include <GL/glut.h>
 	#endif
 #endif
+
+Scene::Scene()
+{
+    physicsWorld = new BulletPhysics(-9.82f);
+}
+
 void Scene::initialize()
 {
     // Init the lightsource parameters
@@ -49,12 +55,12 @@ void Scene::setCameraZoom(float x, float y)
         mCamera.zoom -= y / 5.0f;
 }
 
-void Scene::addGeometry(Geometry *G)
+void Scene::addGeometry(Geometry *G, unsigned int type)
 {
     //updateVoronoiPatterns("icosphere", Matrix4x4<float>());
     mGeometries.push_back(G);
     // G->calculateCenterOfMass();
-    // physicsWorld->addGeometry(G->getUniqueVertexList(), G->getWorldCenterOfMass() , type, G->volume());
+    physicsWorld->addRigidBody(G, 1.0f, type);
 }
 
 void Scene::setCameraRotation(float x, float y)

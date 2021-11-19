@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "Geometry.h"
+#include "BulletPhysics.h"
 #include <vector>
 #define I_MVP 0
 #define I_MV 1
@@ -13,7 +14,7 @@
 class Scene
 {
 public:
-    Scene() = default;
+    Scene();
 
     ~Scene() = default;
 
@@ -21,7 +22,7 @@ public:
     
     void render();
 
-    void addGeometry(Geometry*);
+    void addGeometry(Geometry*, unsigned int type);
 
     void setCameraRotation(float x, float y);
     void setCameraZoom(float x, float y);
@@ -50,6 +51,8 @@ private:
     std::vector<Geometry*>mGeometries;
     
     std::vector<glm::mat4x4>mSceneMatrices;
+
+    BulletPhysics* physicsWorld;
 
     struct LightSource
     {

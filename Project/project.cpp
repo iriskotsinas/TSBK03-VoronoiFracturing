@@ -148,6 +148,7 @@ int main( void )
         std::vector<Geometry*> fractures = vd->fracture();
         for(auto g : fractures){
             scene->addGeometry(g, 1);
+
         }
         scene->addGeometry(groundPlane, 0);
 
@@ -166,6 +167,7 @@ int main( void )
             // renderer.Draw(va, ib, shader);
             glfwSetMouseButtonCallback(window, mouse_cursor_callback);
             scene->render();
+            scene->stepSimulation();
             // Swap buffers
             glfwSwapBuffers(window);
             glfwPollEvents();

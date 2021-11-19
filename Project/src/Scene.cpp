@@ -24,7 +24,12 @@ Scene::Scene()
 {
     physicsWorld = new BulletPhysics(-9.82f);
 }
-
+Scene::~Scene(){
+    for(auto g : mGeometries){
+        g->~Geometry();
+    }
+    delete physicsWorld;
+}
 void Scene::initialize()
 {
     // Init the lightsource parameters
@@ -58,8 +63,9 @@ void Scene::setCameraZoom(float x, float y)
 void Scene::addGeometry(Geometry *G, unsigned int type)
 {
     //updateVoronoiPatterns("icosphere", Matrix4x4<float>());
+    G->setType(type);
     mGeometries.push_back(G);
-    // G->calculateCenterOfMass();
+    G->calculateGeometryWorldPosition();
     physicsWorld->addRigidBody(G, 1.0f, type);
 }
 
@@ -88,7 +94,7 @@ void Scene::render()
     
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    
     mCamera.viewMatrix = glm::lookAt(
             glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),
             glm::vec3(0.0f, 0.0f, 0.0f),
@@ -123,7 +129,26 @@ void Scene::render()
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 }
+void Scene::stepSimulation(){
+    btTransform physTransMat;
+    btQuaternion physRot;
+    btScalar physRotAngle;
+    btVector3 physRotAxis;
 
+    physicsWorld->stepSimulation(mSceneMatrices[I_MVP]);
+    
+    for(unsigned int i = 0; i < mGeometries.size(); i++) {
+        if(mGeometries[i]->getType() == 1) {
+            physicsWorld->getRigidBodyAt(i)->getMotionState()->getWorldTransform(physTransMat);
+            float glTransArr[16];
+            physTransMat.getOpenGLMatrix(glTransArr);
+            // mGeometries[i]->setTransMat(mGeometries[i]->getTransMat()*glm::make_mat4(glTransArr));
+            mGeometries[i]->updateMesh(glm::make_mat4(glTransArr));
+            // updatePreComputedVoronoiPattern(mGeometries[i]->getObjName(), toGlmMat4(glTransArr));
+        }
+    }
+
+}
 glm::mat4x4 Scene::toMatrix4x4Row(glm::mat4 m)
 {
     return glm::mat4x4

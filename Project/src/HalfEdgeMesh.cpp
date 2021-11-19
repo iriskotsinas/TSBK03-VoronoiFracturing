@@ -5,7 +5,11 @@ HalfEdgeMesh::HalfEdgeMesh(std::string s)
     setName(s);
     mTransMat = glm::mat4(1.0f);
 }
-
+HalfEdgeMesh::~HalfEdgeMesh(){
+    for(auto e : mEdges){
+        delete e;
+    }
+}
 void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
 {
     //std::cout << "\nInitializing Half-Edge mesh ...\n\n";
@@ -16,9 +20,9 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
 
     // mBoundingbox->setWireFrame(true);
 
-    // buildRenderData();
+    buildRenderData();
 
-    // mTransformedVertexList = mOrderedVertexList;
+    mTransformedVertexList = mOrderedVertexList;
 
     // Update face normals
     // for(unsigned int i = 0; i < mFaces.size(); i++) {
@@ -33,7 +37,6 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
     // updateRenderData();
 
     // std::cout << "\t --- \t Volume: " << volume() << "\t --- \t" << std::endl;
-    buildRenderData();
 
     GLCall(glGenVertexArrays(1, &vertexArrayID));
     GLCall(glBindVertexArray(vertexArrayID));
@@ -150,6 +153,13 @@ void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)
 
 void HalfEdgeMesh::buildRenderData()
 {
+    mOrderedNormalList.clear();
+    mOrderedNormalList.shrink_to_fit();
+    mOrderedColorList.clear();
+    mOrderedColorList.shrink_to_fit();
+    mOrderedVertexList.clear();
+    mOrderedVertexList.shrink_to_fit();
+
     jcv_graphedge *edge = mEdges[0];
     while (edge)
     {

@@ -23,6 +23,7 @@ class VoronoiDiagram
         ~VoronoiDiagram()
         {
             jcv_diagram_free(&diagram);
+            delete mesh;
         }
         void samplePoints(unsigned int n);
         std::vector<Geometry*> fracture();

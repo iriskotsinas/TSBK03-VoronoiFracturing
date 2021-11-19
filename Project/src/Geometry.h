@@ -37,11 +37,12 @@
 class Geometry{
      protected:
         bool debug = false;
-
+        unsigned int type = 0;
         std::vector<glm::vec3> orderedEdgePoints;
 
         // Vertex list in drawing order
         std::vector< glm::vec3> mOrderedVertexList;
+        std::vector< glm::vec3> mTransformedVertexList;
         std::vector< glm::vec4> mOrderedColorList;
         std::vector<glm::vec3> mOrderedNormalList;
 
@@ -49,7 +50,7 @@ class Geometry{
         std::string mObjName;
 
         glm::vec4 mColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
+        glm::vec3 mWorldPosition;
     // Shader data
         GLuint vertexArrayID;
         GLuint vertexBuffer;
@@ -81,7 +82,23 @@ class Geometry{
         void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
         void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
         void addNormal(glm::vec3 n) { mOrderedNormalList.push_back(n); }
-
+        void setType(const unsigned int t){type = t;}
+        void updateMesh(glm::mat4 transMat){
+            // mTransformedVertexList.clear();
+            // mTransformedVertexList.shrink_to_fit();
+            mTransMat = transMat;
+            // std::cout<<"transMat"<<transMat[0][1]<<std::endl;
+            glm::mat4x4 transformMatrix = toMatrix4x4(mTransMat);
+            // std::cout<<"size: "<<mOrderedVertexList.size()<<std::endl;
+            for(unsigned int i = 0; i < mOrderedVertexList.size(); i++) {
+                // Apply the rotation to the vertices
+                glm::vec4 v = transformMatrix * glm::vec4(mOrderedVertexList[i], 1.0f);
+                mTransformedVertexList[i] = (glm::vec3(v[0], v[1], v[2]));
+            }    
+            // mOrderedVertexList = mTransformedVertexList;
+            
+        }
+        unsigned int getType(){return type;}
         glm::mat4x4 toMatrix4x4Row(glm::mat4 m)
         {
             return glm::mat4x4
@@ -179,7 +196,7 @@ class Geometry{
             mTransMat = glm::rotate(mTransMat, radians, glm::vec3(1.0f, 0.0f, 0.0f));
         }
 
-        glm::vec4 getGeometryWorldPosition() const
+        void calculateGeometryWorldPosition()
         {
             glm::vec4 tmpPos = glm::vec4(0.0f);
             for (auto v : mOrderedVertexList)
@@ -188,7 +205,11 @@ class Geometry{
             }
             tmpPos = toMatrix4x4(glm::inverse(mTransMat)) * tmpPos;
             tmpPos /= mOrderedVertexList.size();
+            std::cout<<"x: "<<tmpPos.x<<", y: "<<tmpPos.y<<", z: "<<tmpPos.z<<" size: "<<mOrderedVertexList.size()<<std::endl;
 
-            return tmpPos;
+            mWorldPosition = glm::vec3(tmpPos[0], tmpPos[1], tmpPos[2]);
+        }
+        glm::vec3 getWorldPosition() const {
+            return mWorldPosition;
         }
 };

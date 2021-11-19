@@ -48,7 +48,7 @@ class HalfEdgeMesh : public Geometry{
     public:
         HalfEdgeMesh(std::string s);
 
-        ~HalfEdgeMesh() = default;
+        ~HalfEdgeMesh();
         void extrude();
         void generatePlane(float width, float height);
         void initialize(glm::vec3);

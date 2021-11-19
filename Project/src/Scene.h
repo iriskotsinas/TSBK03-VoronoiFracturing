@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "Geometry.h"
 #include "BulletPhysics.h"
 #include <vector>
@@ -16,7 +17,7 @@ class Scene
 public:
     Scene();
 
-    ~Scene() = default;
+    ~Scene();
 
     void initialize();
     
@@ -38,7 +39,7 @@ public:
     {
         isPressed = false;
     }
-
+    void stepSimulation();
 private:
     bool isPressed = false;
     float prevX = 0.0f, prevY = 0.0f;

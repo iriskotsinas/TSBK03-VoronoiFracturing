@@ -12,7 +12,7 @@ HalfEdgeMesh::~HalfEdgeMesh(){
 }
 void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
 {
-    //std::cout << "\nInitializing Half-Edge mesh ...\n\n";
+    // std::cout << "\nInitializing Half-Edge mesh ...\n\n";
 
     // mBoundingbox = new Boundingbox(buildVertexData());
 
@@ -22,7 +22,7 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
 
     buildRenderData();
 
-    mTransformedVertexList = mOrderedVertexList;
+    // mTransformedVertexList = mOrderedVertexList;
 
     // Update face normals
     // for(unsigned int i = 0; i < mFaces.size(); i++) {
@@ -112,7 +112,7 @@ void HalfEdgeMesh::initialize(glm::vec3 lightPosition)
          reinterpret_cast<void*>(0)  // array buffer offset
      ));
 
-    //std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
+    // std::cout << "\nHalf-Edge mesh initialized!\n" << std::endl;
 }
 
 void HalfEdgeMesh::render(std::vector<glm::mat4x4> sceneMatrices)

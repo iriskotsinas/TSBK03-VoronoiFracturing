@@ -88,13 +88,13 @@ class Geometry{
             // mTransformedVertexList.shrink_to_fit();
             mTransMat = transMat;
             // std::cout<<"transMat"<<transMat[0][1]<<std::endl;
-            glm::mat4x4 transformMatrix = toMatrix4x4(mTransMat);
-            // std::cout<<"size: "<<mOrderedVertexList.size()<<std::endl;
-            for(unsigned int i = 0; i < mOrderedVertexList.size(); i++) {
-                // Apply the rotation to the vertices
-                glm::vec4 v = transformMatrix * glm::vec4(mOrderedVertexList[i], 1.0f);
-                mTransformedVertexList[i] = (glm::vec3(v[0], v[1], v[2]));
-            }    
+            // glm::mat4x4 transformMatrix = toMatrix4x4(mTransMat);
+            // // std::cout<<"size: "<<mOrderedVertexList.size()<<std::endl;
+            // for(unsigned int i = 0; i < mOrderedVertexList.size(); i++) {
+            //     // Apply the rotation to the vertices
+            //     glm::vec4 v = transformMatrix * glm::vec4(mOrderedVertexList[i], 1.0f);
+            //     mTransformedVertexList[i] = (glm::vec3(v[0], v[1], v[2]));
+            // }    
             // mOrderedVertexList = mTransformedVertexList;
             
         }
@@ -205,7 +205,7 @@ class Geometry{
             }
             tmpPos = toMatrix4x4(glm::inverse(mTransMat)) * tmpPos;
             tmpPos /= mOrderedVertexList.size();
-            std::cout<<"x: "<<tmpPos.x<<", y: "<<tmpPos.y<<", z: "<<tmpPos.z<<" size: "<<mOrderedVertexList.size()<<std::endl;
+            // std::cout<<"x: "<<tmpPos.x<<", y: "<<tmpPos.y<<", z: "<<tmpPos.z<<" size: "<<mOrderedVertexList.size()<<std::endl;
 
             mWorldPosition = glm::vec3(tmpPos[0], tmpPos[1], tmpPos[2]);
         }

@@ -49,8 +49,8 @@ void Scene::initialize()
     mSceneMatrices.push_back(glm::mat4x4());
     mSceneMatrices.push_back(glm::mat4x4());
 
-    for (std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
-        (*it)->initialize(mPointLight.position);
+    // for (std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
+        // (*it)->initialize(mPointLight.position);
     std::cout<<"Scene initialized..."<<std::endl;
 }
 
@@ -62,10 +62,10 @@ void Scene::setCameraZoom(float x, float y)
 
 void Scene::addGeometry(Geometry *G, unsigned int type)
 {
-    //updateVoronoiPatterns("icosphere", Matrix4x4<float>());
+    G->initialize(glm::vec3());
     G->setType(type);
-    mGeometries.push_back(G);
     G->calculateGeometryWorldPosition();
+    mGeometries.push_back(G);
     physicsWorld->addRigidBody(G, 1.0f, type);
 }
 
@@ -132,7 +132,6 @@ void Scene::render()
 void Scene::stepSimulation(){
     btTransform physTransMat;
     btQuaternion physRot;
-    btScalar physRotAngle;
     btVector3 physRotAxis;
 
     physicsWorld->stepSimulation(mSceneMatrices[I_MVP]);

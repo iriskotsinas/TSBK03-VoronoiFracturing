@@ -78,7 +78,6 @@ std::vector<Geometry*> VoronoiDiagram::fracture()
             mesh->addHalfEdge(e);
             e = e->next;
         }
-        mesh->initialize(glm::vec3());
         fractures.push_back(mesh);
     }
     std::cout<<"VoronoiDiagram fractured"<<std::endl;

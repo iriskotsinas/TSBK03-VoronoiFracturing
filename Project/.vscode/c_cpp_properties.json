@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "../common",
-                "../common/Linux"
+                "../common/Linux",
+                "/usr/include/bullet"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

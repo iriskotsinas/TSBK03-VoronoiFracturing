@@ -40,6 +40,8 @@ public:
         isPressed = false;
     }
     void stepSimulation();
+    void resetCamera();
+
 private:
     bool isPressed = false;
     float prevX = 0.0f, prevY = 0.0f;
@@ -66,8 +68,8 @@ private:
         float fov = 45.0f;
         float aspectRatio = 16.0f / 9.0f;
         float zoom = 5.f;
-        glm::quat orientation;
-        glm::mat4 projectionMatrix;
-        glm::mat4 viewMatrix;
+        glm::quat orientation = glm::quat();
+        glm::mat4 projectionMatrix = glm::mat4();
+        glm::mat4 viewMatrix = glm::mat4();
     } mCamera;
 };

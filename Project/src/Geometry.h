@@ -218,18 +218,24 @@ class Geometry{
 
             mWorldPosition = glm::vec3(tmpPos[0], tmpPos[1], tmpPos[2]);
         }
-        glm::vec3 getWorldPosition() const {
+
+        glm::vec3 getWorldPosition() const
+        {
             return mWorldPosition;
         }
-        void addTriangle(glm::vec3 v0, glm::vec3 v1,glm::vec3 v2){
-            
-            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v0) == mUniqueVertexList.end()){
+
+        void addTriangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
+        {
+            if (std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v0) == mUniqueVertexList.end())
+            {
                 mUniqueVertexList.push_back(v0);
             }
-            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v1) == mUniqueVertexList.end()){
+            if (std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v1) == mUniqueVertexList.end())
+            {
                 mUniqueVertexList.push_back(v1);
             }
-            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v2) == mUniqueVertexList.end()){
+            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v2) == mUniqueVertexList.end())
+            {
                 mUniqueVertexList.push_back(v2);
             }
 
@@ -241,7 +247,7 @@ class Geometry{
             addNormal(normal0);
             addNormal(normal0);
             addNormal(normal0);
-            // std::cout<<"x: "<<normal0.x<<", y: "<<normal0.y<<", z: "<<normal0.z<<" size: "<<mOrderedVertexList.size()<<std::endl;
+
             addColor(mColor);
             addColor(mColor);
             addColor(mColor);

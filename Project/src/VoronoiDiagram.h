@@ -25,10 +25,11 @@ class VoronoiDiagram
             jcv_diagram_free(&diagram);
             delete mesh;
         }
-        void samplePoints(unsigned int n);
-        std::vector<Geometry*> fracture();
+        void sampleUniformPoints(unsigned int n);
+        void sampleCrackPoints(unsigned int n);
+        void sampleHolePoints(unsigned int n);
+        std::vector<Geometry*> fracture(bool randomColors);
         void buildLines();
-        void buildTriangles();
         // glm::vec3 enforceBoundaries(glm::vec3 p);
     private:
         std::pair< float, float> x,y;

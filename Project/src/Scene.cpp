@@ -181,3 +181,24 @@ glm::mat4x4 Scene::toMatrix4x4(glm::mat3 m)
         {0.0f   , 0.0f   , 0.0f   , 1.0f}
     };
 }
+
+void Scene::resetCamera()
+{
+    mCamera.fov = 45.0f;
+    mCamera.aspectRatio = 16.0f / 9.0f;
+    mCamera.zoom = 5.f;
+    mCamera.viewMatrix = glm::lookAt(
+            glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)) *
+                         glm::mat4_cast(mCamera.orientation);
+
+    mCamera.projectionMatrix = glm::perspective(
+            mCamera.fov,          // field of view, 45.0
+            mCamera.aspectRatio,  // 16/9
+            0.1f,                // Near clipping plane
+            100.0f);             // far clipping plane
+
+    glm::quat identityQuat = glm::quat();
+    mCamera.orientation = identityQuat;
+}

@@ -6,10 +6,7 @@
 // Include GLEW
 #include <GL/glew.h>
 #ifdef __APPLE__
-// Mac
 	#include <OpenGL/gl3.h>
-//	#include "MicroGlut.h"
-	// uses framework Cocoa
 #else
 	#ifdef WIN32
 // MS
@@ -28,36 +25,23 @@
 
 #define DEBUG
 
-// #include "VectorUtils3.h"
-// #include "GL_utilities.h"
-// #include "LittleOBJLoader.h"
-// #include <glad/glad.h>
-// #include "imgui/imgui.h"
-
-// Include GLFW
 #include <GLFW/glfw3.h>
-
 #include <iostream>
 
-// #include "src/VertexBuffer.h"
-// #include "src/VertexArray.h"
-// #include "src/IndexBuffer.h"
-// #include "src/Shader.h"
-// #include "src/Renderer.h"
 #include "src/Scene.h"
-// #include "src/HalfEdgeMesh.h"
 #include "src/VoronoiDiagram.h"
-// #include "src/Geometry.h"
 #include "src/Plane.h"
 
-// #include "jc_voronoi.h"
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 Scene* scene;
+int pattern = 0;
+int numPoints = 50;
+bool randomColor = false;
 
 GLFWwindow* InitWindow()
 {
-    // Initialise GLFW
+    // Initialize GLFW
     if( !glfwInit() )
     {
         fprintf( stderr, "Failed to initialize GLFW\n" );
@@ -115,8 +99,6 @@ static void mouse_cursor_callback( GLFWwindow * window, int button, int action, 
         }
         else if(GLFW_RELEASE == action)
             scene->setWindowReleased();
-
-            
     }
 }
 
@@ -130,36 +112,96 @@ void mouseScroll(GLFWwindow* window, double x, double y) {
     scene->setCameraZoom(x, y);
 }
 
+void createScene()
+{
+    scene = new Scene();
+    Plane* plane = new Plane(glm::vec3(0.0f, 0.0f, 10.0f));
+    plane->generatePlane(2.0f, 2.0f);
+
+    VoronoiDiagram* vd = new VoronoiDiagram(plane);
+
+    switch (pattern)
+    {
+        case 0:
+            vd->sampleUniformPoints(numPoints);
+            break;
+        case 1:
+            vd->sampleCrackPoints(numPoints);
+            break;
+        case 2:
+            vd->sampleHolePoints(numPoints);
+            break;
+        default:
+            break;
+    }
+
+    std::vector<Geometry*> fractures = vd->fracture(randomColor);
+    for (auto g : fractures)
+    {
+        scene->addGeometry(g, 1.0f, 1);
+    }
+
+    Plane* groundPlane = new Plane(glm::vec3(0.0f, -1.1f, 0.0f));
+    groundPlane->generateCube(10.0f, 10.0f, 10);
+    // groundPlane->rotateX(-glm::pi<float>() / 2.0f);
+    scene->addGeometry(groundPlane, 0.0f, 0);
+    scene->initialize();
+    delete vd;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        switch (key)
+        {
+            case GLFW_KEY_R:
+                scene->resetCamera();
+                break;
+            case GLFW_KEY_SPACE:
+                createScene();
+                break;
+            case GLFW_KEY_P:
+                if (pattern >= 2)
+                    pattern = 0;
+                else
+                    pattern ++;
+                createScene();
+                break;
+            case GLFW_KEY_UP:
+                if (numPoints <= 200)
+                    numPoints += 10;
+                createScene();
+                break;
+            case GLFW_KEY_DOWN:
+                if (numPoints >= 20)
+                    numPoints -= 10;
+                createScene();
+                break;
+            case GLFW_KEY_C:
+                randomColor = !randomColor;
+                createScene();
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 int main( void )
 {
-
     GLFWwindow* window = InitWindow();
     if (!window)
         return -1;
 
     {
-        Plane* plane = new Plane(glm::vec3(0.0f, 0.0f, 0.0f));
-        plane->generatePlane(2.0f, 2.0f);
-        scene = new Scene();
-
-        VoronoiDiagram* vd = new VoronoiDiagram(plane);
-        vd->samplePoints(5);
-        std::vector<Geometry*> fractures = vd->fracture();
-        for(auto g : fractures){
-            scene->addGeometry(g, 1.0f, 1);
-        }
-
-        Plane* groundPlane = new Plane(glm::vec3(0.0f, -1.1f, 0.0f));
-        groundPlane->generateCube(10.0f, 10.0f, 10);
-        // groundPlane->rotateX(-glm::pi<float>() / 2.0f);
-        scene->addGeometry(groundPlane, 0.0f, 0);
-
-        //scene->addGeometry(plane);
-        scene->initialize();
+        createScene();
 
         glfwSetCursorPosCallback(window, mouseDragged);
         glfwSetScrollCallback(window, mouseScroll);
         glfwSetMouseButtonCallback(window, mouse_cursor_callback);
+
+        glfwSetKeyCallback(window, key_callback);
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -175,8 +217,6 @@ int main( void )
             glFlush();
             glfwSwapBuffers(window);
             glfwPollEvents();
-
-
         } // Check if the ESC key was pressed or the window was closed
         while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
                 glfwWindowShouldClose(window) == 0 );

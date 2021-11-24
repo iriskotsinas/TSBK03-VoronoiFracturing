@@ -141,8 +141,8 @@ void Scene::stepSimulation(){
             physicsWorld->getRigidBodyAt(i)->getMotionState()->getWorldTransform(physTransMat);
             float glTransArr[16];
             physTransMat.getOpenGLMatrix(glTransArr);
-            // mGeometries[i]->setTransMat(mGeometries[i]->getTransMat()*glm::make_mat4(glTransArr));
-            mGeometries[i]->updateMesh(glm::make_mat4(glTransArr));
+            mGeometries[i]->setTransMat(glm::make_mat4(glTransArr));
+            // mGeometries[i]->updateMesh(glm::make_mat4(glTransArr));
             // updatePreComputedVoronoiPattern(mGeometries[i]->getObjName(), toGlmMat4(glTransArr));
         }
     }

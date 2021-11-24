@@ -165,20 +165,8 @@ void HalfEdgeMesh::buildRenderData()
     {
         glm::vec3 p0 = glm::vec3(edge->pos[0].x, edge->pos[0].y, 0.0f);
         glm::vec3 p1 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
-
-        addVertex(siteCenter);
-        addVertex(p0);
-        addVertex(p1);
-
-        addColor(mColor);
-        addColor(mColor);
-        addColor(mColor);
-
-        glm::vec3 normal = calculateNormal(siteCenter, p0, p1);
-        addNormal(normal);
-        addNormal(normal);
-        addNormal(normal);
-
+        addTriangle(siteCenter, p0, p1);
+        
         edge = edge->next;
     }
     extrude();
@@ -198,18 +186,7 @@ void HalfEdgeMesh::extrude()
         glm::vec3 p1 = glm::vec3(edge->pos[0].x, edge->pos[0].y, -offset);
 
         offsetEdges.push_back(edge);
-        addVertex(p0);
-        addVertex(p1);
-        addVertex(siteCenterOffset);
-
-        addColor(mColor);
-        addColor(mColor);
-        addColor(mColor);
-
-        glm::vec3 normal = calculateNormal(p0, p1, siteCenterOffset);
-        addNormal(normal);
-        addNormal(normal);
-        addNormal(normal);
+        addTriangle(p0, p1, siteCenterOffset);
 
         edge = edge->next;
     }
@@ -226,32 +203,9 @@ void HalfEdgeMesh::extrude()
         p2 = glm::vec3(edgeOffset->pos[1].x, edgeOffset->pos[1].y, -offset);
         p3 = glm::vec3(edge->pos[1].x, edge->pos[1].y, 0.0f);
 
-        // First triangle
-        addVertex(p0);
-        addVertex(p1);
-        addVertex(p2);
+        addTriangle(p0, p1, p2);
+        addTriangle(p0, p2, p3);
 
-        glm::vec3 normal0 = calculateNormal(p0, p1, p2);
-        addNormal(normal0);
-        addNormal(normal0);
-        addNormal(normal0);
-
-        // Second triangle
-        addVertex(p0);
-        addVertex(p2);
-        addVertex(p3);
-
-        glm::vec3 normal1 = calculateNormal(p0, p2, p3);
-        addNormal(normal1);
-        addNormal(normal1);
-        addNormal(normal1);
-
-        addColor(mColor);
-        addColor(mColor);
-        addColor(mColor);
-        addColor(mColor);
-        addColor(mColor);
-        addColor(mColor);
 
         edge = edge->next;
         edgeOffset = edgeOffset->next;

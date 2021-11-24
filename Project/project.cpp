@@ -143,7 +143,7 @@ int main( void )
         scene = new Scene();
 
         VoronoiDiagram* vd = new VoronoiDiagram(plane);
-        vd->samplePoints(50);
+        vd->samplePoints(5);
         std::vector<Geometry*> fractures = vd->fracture();
         for(auto g : fractures){
             scene->addGeometry(g, 1.0f, 1);

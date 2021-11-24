@@ -27,15 +27,15 @@ void BulletPhysics::addRigidBody(const Geometry *geometry, const float mass, con
     btVector3 inertia(0, 0, 0);
     glm::vec3 pos = geometry->getWorldPosition();
     btConvexHullShape *bConvex = new btConvexHullShape();
-    for (auto v : geometry->getVerts())
+    
+    for (auto v : geometry->getUniqueVerts())
     {
         bConvex->addPoint(btVector3(v.x, v.y, v.z), false);
     }
-
+    float margin = 0;
     bConvex->recalcLocalAabb();
-    bConvex->setMargin(0.04); // padding
+    bConvex->setMargin(margin);
     btShapeHull* hull = new btShapeHull(bConvex);
-    btScalar margin = bConvex->getMargin();
     hull->buildHull(margin);
 
     shape = bConvex;
@@ -52,11 +52,13 @@ void BulletPhysics::addRigidBody(const Geometry *geometry, const float mass, con
     }
     btRigidBody::btRigidBodyConstructionInfo shapeRigidBodyCI(mass, motionState, shape, inertia);
     btRigidBody *body = new btRigidBody(shapeRigidBodyCI);
-    body->setRestitution(0.5);
+    body->setRestitution(0);
     // body->setFriction(btScalar(5.0f));
     // Add rigid body to dynamic world
     m_dynamicsWorld->addRigidBody(body);
     m_rigidBodiesList.push_back(body);
+
+    delete hull;
     
 }
 

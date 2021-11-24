@@ -1,13 +1,14 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "Debug.h"
-#include <glm/glm.hpp>
 #include <GL/glew.h>
-#include "iostream"
-#include "vector"
+#include <iostream>
+#include <vector>
+#include <set>
 #include "Shader.h"
 #include <limits>
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 #ifdef __APPLE__
 // Mac
 	#include <OpenGL/gl3.h>
@@ -39,10 +40,10 @@ class Geometry{
         unsigned int type = 0;
         std::vector<glm::vec3> orderedEdgePoints;
 
-        // Vertex list in drawing order
-        std::vector< glm::vec3> mOrderedVertexList;
-        std::vector< glm::vec3> mTransformedVertexList;
-        std::vector< glm::vec4> mOrderedColorList;
+        std::vector<glm::vec3> mUniqueVertexList;
+        std::vector<glm::vec3> mOrderedVertexList;
+        std::vector<glm::vec3> mTransformedVertexList;
+        std::vector<glm::vec4> mOrderedColorList;
         std::vector<glm::vec3> mOrderedNormalList;
 
         glm::mat4 mTransMat;
@@ -149,14 +150,22 @@ class Geometry{
             mObjName = s;
         }
 
-        int getVertCount()
+        int getVertCount() const
         {
             return mOrderedVertexList.size();
+        }
+        int getUniqueVertCount() const
+        {
+            return mUniqueVertexList.size();
         }
 
         std::vector<glm::vec3> getVerts() const
         {
             return mOrderedVertexList;
+        }
+        std::vector<glm::vec3> getUniqueVerts() const
+        {
+            return mUniqueVertexList;
         }
 
         void setBoundaries(std::pair< float, float> &x, std::pair< float, float> &y)
@@ -213,6 +222,17 @@ class Geometry{
             return mWorldPosition;
         }
         void addTriangle(glm::vec3 v0, glm::vec3 v1,glm::vec3 v2){
+            
+            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v0) == mUniqueVertexList.end()){
+                mUniqueVertexList.push_back(v0);
+            }
+            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v1) == mUniqueVertexList.end()){
+                mUniqueVertexList.push_back(v1);
+            }
+            if(std::find(mUniqueVertexList.begin(), mUniqueVertexList.end(), v2) == mUniqueVertexList.end()){
+                mUniqueVertexList.push_back(v2);
+            }
+
             addVertex(v0);
             addVertex(v1);
             addVertex(v2);

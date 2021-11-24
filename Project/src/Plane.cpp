@@ -1,9 +1,9 @@
         #include "Plane.h"
 
-        Plane::Plane(float width, float height, glm::vec3 pos)
+        Plane::Plane(glm::vec3 _pos)
+            :pos{_pos}
         {
             setName("Plane");
-            generatePlane(width, height, pos);
             mTransMat = glm::translate(glm::mat4(1.0f), pos);
         }
 
@@ -89,72 +89,67 @@
 
         void Plane::render(std::vector<glm::mat4x4> sceneMatrices)
         {
-                GLCall(glUseProgram(shaderProgram));
+            GLCall(glUseProgram(shaderProgram));
 
-    glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
-    glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV][0][0]);
+            glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, &sceneMatrices[I_MVP][0][0]);
+            glUniformMatrix4fv(MVLoc, 1, GL_FALSE, &sceneMatrices[I_MV][0][0]);
 
-    GLCall(glBindVertexArray(vertexArrayID));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
+            GLCall(glBindVertexArray(vertexArrayID));
+            GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
 
-    if (debug)
-    {
-        //Lines
-        GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0],
-                            GL_STATIC_DRAW));
-        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
+            if (debug)
+            {
+                //Lines
+                GLCall(glBufferData(GL_ARRAY_BUFFER, orderedEdgePoints.size() * sizeof(glm::vec3), &orderedEdgePoints[0],
+                                    GL_STATIC_DRAW));
+                // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
 
-        glDrawArrays(GL_LINES, 0, orderedEdgePoints.size());
-    } else {
-        //Triangles
-        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0],
-                            GL_STATIC_DRAW));
-        // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
+                glDrawArrays(GL_LINES, 0, orderedEdgePoints.size());
+            } else {
+                //Triangles
+                GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedVertexList.size() * sizeof(glm::vec3), &mOrderedVertexList[0],
+                                    GL_STATIC_DRAW));
+                // std::cout<<"size: " <<orderedEdgePoints.size()<<std::endl;
 
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0],
-                            GL_STATIC_DRAW));
+                GLCall(glBindBuffer(GL_ARRAY_BUFFER, colorBuffer));
+                GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedColorList.size() * sizeof(glm::vec4), &mOrderedColorList[0],
+                                    GL_STATIC_DRAW));
 
-        glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size());
 
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, normalBuffer));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0],
-                            GL_STATIC_DRAW));
-    }
+                GLCall(glBindBuffer(GL_ARRAY_BUFFER, normalBuffer));
+                GLCall(glBufferData(GL_ARRAY_BUFFER, mOrderedNormalList.size() * sizeof(glm::vec3), &mOrderedNormalList[0],
+                                    GL_STATIC_DRAW));
+                glDrawArrays(GL_TRIANGLES, 0, mOrderedVertexList.size());
+            }
         }
 
-        void Plane::generatePlane(float width, float height, glm::vec3 pos)
+        void Plane::generatePlane(float width, float height)
         {
             glm::vec3 v0 = {pos.x-width, pos.y-height, pos.z};
             glm::vec3 v1 = {pos.x+width, pos.y+height, pos.z};
             glm::vec3 v2 = {pos.x-width, pos.y+height, pos.z};
             glm::vec3 v3 = {pos.x+width, pos.y-height, pos.z};
 
-            //First Triangle
-            addVertex(v0);
-            addVertex(v1);
-            addVertex(v2);
+            addTriangle(v0,v1,v2);
+            addTriangle(v0,v3,v1);
+            // addTriangle(v2,v1,v0);
+            // addTriangle(v1,v3,v0);
+            
+        }
+        void Plane::generateCube(float width, float height, float depth)
+        {
+            glm::vec3 v0 = {pos.x-width, pos.y, pos.z-height};
+            glm::vec3 v1 = {pos.x+width, pos.y, pos.z+height};
+            glm::vec3 v2 = {pos.x-width, pos.y, pos.z+height};
+            glm::vec3 v3 = {pos.x+width, pos.y, pos.z-height};
 
-            glm::vec3 normal0 = calculateNormal(v0, v1, v2);
-            addNormal(normal0);
-            addNormal(normal0);
-            addNormal(normal0);
+            glm::vec3 v4 = {pos.x-width, pos.y-.3f, pos.z-height};
+            glm::vec3 v5 = {pos.x+width, pos.y-.3f, pos.z+height};
+            glm::vec3 v6 = {pos.x-width, pos.y-.3f, pos.z+height};
+            glm::vec3 v7 = {pos.x+width, pos.y-.3f, pos.z-height};
 
-            addColor(mColor);
-            addColor(mColor);
-            addColor(mColor);
+            addTriangle(v2,v1,v0);
+            addTriangle(v1,v3,v0);
 
-            //Second Triangle
-            addVertex(v0);
-            addVertex(v3);
-            addVertex(v1);
-
-            glm::vec3 normal1 = calculateNormal(v0, v3, v1);
-            addNormal(normal1);
-            addNormal(normal1);
-            addNormal(normal1);
-
-            addColor(mColor);
-            addColor(mColor);
-            addColor(mColor);
+            
         }

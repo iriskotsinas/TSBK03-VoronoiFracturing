@@ -23,7 +23,7 @@ public:
     
     void render();
 
-    void addGeometry(Geometry*, unsigned int type);
+    void addGeometry(Geometry *G, float mass, unsigned int type);
 
     void setCameraRotation(float x, float y);
     void setCameraZoom(float x, float y);

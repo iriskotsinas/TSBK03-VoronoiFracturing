@@ -22,7 +22,7 @@
 
 Scene::Scene()
 {
-    physicsWorld = new BulletPhysics(-9.82f);
+    physicsWorld = new BulletPhysics(-1.82f);
 }
 Scene::~Scene(){
     for(auto g : mGeometries){
@@ -60,13 +60,13 @@ void Scene::setCameraZoom(float x, float y)
         mCamera.zoom -= y / 5.0f;
 }
 
-void Scene::addGeometry(Geometry *G, unsigned int type)
+void Scene::addGeometry(Geometry *G, float mass, unsigned int type)
 {
     G->initialize(glm::vec3());
     G->setType(type);
     G->calculateGeometryWorldPosition();
     mGeometries.push_back(G);
-    physicsWorld->addRigidBody(G, 1.0f, type);
+    physicsWorld->addRigidBody(G, mass, type);
 }
 
 void Scene::setCameraRotation(float x, float y)
@@ -91,7 +91,7 @@ void Scene::render()
     glEnable( GL_CULL_FACE );
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    
+    // glDepthFunc(GL_NEVER);
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
@@ -134,7 +134,7 @@ void Scene::stepSimulation(){
     btQuaternion physRot;
     btVector3 physRotAxis;
 
-    physicsWorld->stepSimulation(mSceneMatrices[I_MVP]);
+    physicsWorld->stepSimulation();
     
     for(unsigned int i = 0; i < mGeometries.size(); i++) {
         if(mGeometries[i]->getType() == 1) {

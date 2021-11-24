@@ -25,61 +25,42 @@ void BulletPhysics::addRigidBody(const Geometry *geometry, const float mass, con
     btCollisionShape* shape;
     btMotionState* motionState;
     btVector3 inertia(0, 0, 0);
+    glm::vec3 pos = geometry->getWorldPosition();
+    btConvexHullShape *bConvex = new btConvexHullShape();
+    for (auto v : geometry->getVerts())
+    {
+        bConvex->addPoint(btVector3(v.x, v.y, v.z), false);
+    }
 
-    // Create rigid body from vertex list
+    bConvex->recalcLocalAabb();
+    bConvex->setMargin(0.04); // padding
+    btShapeHull* hull = new btShapeHull(bConvex);
+    btScalar margin = bConvex->getMargin();
+    hull->buildHull(margin);
+
+    shape = bConvex;
+    
     if (type == 0) // Static object
     {
-        btConvexHullShape *bConvex = new btConvexHullShape();
-
-        for (auto v : geometry->getVerts())
-        {
-            bConvex->addPoint(btVector3(v.x, v.y, v.z), false);
-        }
-
-        bConvex->recalcLocalAabb();
-        bConvex->setMargin(0.04); // padding
-        btShapeHull* hull = new btShapeHull(bConvex);
-        btScalar margin = bConvex->getMargin();
-        hull->buildHull(margin);
-
-        shape = new btConvexHullShape((const btScalar*)hull->getVertexPointer(), hull->numVertices(), sizeof(btVector3));
-        glm::vec3 pos = geometry->getWorldPosition();
         motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(pos[0], pos[1], pos[2])));
 
     } else if (type == 1) { // Dynamic object
-        btConvexHullShape *bConvex = new btConvexHullShape();
 
-        for (auto v : geometry->getVerts())
-        {
-            bConvex->addPoint(btVector3(v.x, v.y, v.z), false);
-        }
-
-        bConvex->recalcLocalAabb();
-        bConvex->setMargin(0.04);
-        btShapeHull* hull = new btShapeHull(bConvex);
-        btScalar margin = bConvex->getMargin();
-        hull->buildHull(margin);
-
-        shape = bConvex;
-        glm::vec3 pos = geometry->getWorldPosition();
-        motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(pos[0]/20.0f, pos[1]/20.0f, pos[2]/20.0f)));
         shape->calculateLocalInertia(mass, inertia);
-    }  else {
-        std::cout << "Something went wrong when adding rigid body" << std::endl;
+        motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(pos[0]/50.0f, pos[1]/50.0f, pos[2]/50.0f)));
+       
     }
-
-    // Adjust parameters for the object
     btRigidBody::btRigidBodyConstructionInfo shapeRigidBodyCI(mass, motionState, shape, inertia);
     btRigidBody *body = new btRigidBody(shapeRigidBodyCI);
-
-    body->setRestitution(0.4);
-
+    body->setRestitution(0.5);
+    // body->setFriction(btScalar(5.0f));
     // Add rigid body to dynamic world
     m_dynamicsWorld->addRigidBody(body);
     m_rigidBodiesList.push_back(body);
+    
 }
 
-void BulletPhysics::stepSimulation(glm::mat4x4 MVP) {
+void BulletPhysics::stepSimulation() {
     
     double deltaT = glfwGetTime() - prevTime;
     // std::cout<<"time: "<<deltaT<<std::endl;
@@ -87,7 +68,6 @@ void BulletPhysics::stepSimulation(glm::mat4x4 MVP) {
     prevTime = glfwGetTime();
 
     // int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
-    // std::cout<<numManifolds<<std::endl;
     // for (int i=0;i<numManifolds;i++) {
 
     //     btPersistentManifold* contactManifold =  m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
@@ -96,6 +76,7 @@ void BulletPhysics::stepSimulation(glm::mat4x4 MVP) {
 
     //     int numContacts = contactManifold->getNumContacts();
         
+    //     std::cout<<"collisions: "<<numContacts<<std::endl;
     //     for (int j=0;j<numContacts;j++) {
             
     //         btManifoldPoint& pt = contactManifold->getContactPoint(j);

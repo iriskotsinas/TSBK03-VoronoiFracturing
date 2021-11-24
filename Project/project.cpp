@@ -138,25 +138,28 @@ int main( void )
         return -1;
 
     {
-        Plane* plane = new Plane(2.0f, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-        Plane* groundPlane = new Plane(8.0f, 8.0f, glm::vec3(0.0f, -4.0f, 0.0f));
-        groundPlane->rotateX(-glm::pi<float>() / 2.0f);
+        Plane* plane = new Plane(glm::vec3(0.0f, 0.0f, 0.0f));
+        plane->generatePlane(2.0f, 2.0f);
         scene = new Scene();
 
         VoronoiDiagram* vd = new VoronoiDiagram(plane);
         vd->samplePoints(50);
         std::vector<Geometry*> fractures = vd->fracture();
         for(auto g : fractures){
-            scene->addGeometry(g, 1);
-
+            scene->addGeometry(g, 1.0f, 1);
         }
-        scene->addGeometry(groundPlane, 0);
+
+        Plane* groundPlane = new Plane(glm::vec3(0.0f, -1.1f, 0.0f));
+        groundPlane->generateCube(10.0f, 10.0f, 10);
+        // groundPlane->rotateX(-glm::pi<float>() / 2.0f);
+        scene->addGeometry(groundPlane, 0.0f, 0);
 
         //scene->addGeometry(plane);
         scene->initialize();
 
         glfwSetCursorPosCallback(window, mouseDragged);
         glfwSetScrollCallback(window, mouseScroll);
+        glfwSetMouseButtonCallback(window, mouse_cursor_callback);
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -165,10 +168,11 @@ int main( void )
             // shader.SetUniform4f("u_Color", 1.0, 1.0, 1.0, 1.0);
             // glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
             // renderer.Draw(va, ib, shader);
-            glfwSetMouseButtonCallback(window, mouse_cursor_callback);
+            
             scene->render();
             scene->stepSimulation();
             // Swap buffers
+            glFlush();
             glfwSwapBuffers(window);
             glfwPollEvents();
 

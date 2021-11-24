@@ -1,5 +1,4 @@
 #pragma once
-
 #include <glm/glm.hpp>
 #include "Debug.h"
 #include <glm/glm.hpp>
@@ -194,6 +193,7 @@ class Geometry{
         void rotateX(float radians)
         {
             mTransMat = glm::rotate(mTransMat, radians, glm::vec3(1.0f, 0.0f, 0.0f));
+            
         }
 
         void calculateGeometryWorldPosition()
@@ -205,11 +205,25 @@ class Geometry{
             }
             tmpPos = toMatrix4x4(glm::inverse(mTransMat)) * tmpPos;
             tmpPos /= mOrderedVertexList.size();
-            // std::cout<<"x: "<<tmpPos.x<<", y: "<<tmpPos.y<<", z: "<<tmpPos.z<<" size: "<<mOrderedVertexList.size()<<std::endl;
+            
 
             mWorldPosition = glm::vec3(tmpPos[0], tmpPos[1], tmpPos[2]);
         }
         glm::vec3 getWorldPosition() const {
             return mWorldPosition;
+        }
+        void addTriangle(glm::vec3 v0, glm::vec3 v1,glm::vec3 v2){
+            addVertex(v0);
+            addVertex(v1);
+            addVertex(v2);
+
+            glm::vec3 normal0 = calculateNormal(v0, v1, v2);
+            addNormal(normal0);
+            addNormal(normal0);
+            addNormal(normal0);
+            // std::cout<<"x: "<<normal0.x<<", y: "<<normal0.y<<", z: "<<normal0.z<<" size: "<<mOrderedVertexList.size()<<std::endl;
+            addColor(mColor);
+            addColor(mColor);
+            addColor(mColor);
         }
 };

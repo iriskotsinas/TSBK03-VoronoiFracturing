@@ -9,7 +9,7 @@ public:
     BulletPhysics(float gravity);
     ~BulletPhysics();
     void addRigidBody(const Geometry* geometry, const float mass, const unsigned int type);
-    void stepSimulation(glm::mat4x4 MVP);
+    void stepSimulation();
     btRigidBody* getRigidBodyAt(unsigned int i){return m_rigidBodiesList[i];}
 private:
     btDefaultCollisionConfiguration* m_collisionConfiguration;

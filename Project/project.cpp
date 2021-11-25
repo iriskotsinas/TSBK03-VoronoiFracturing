@@ -115,9 +115,22 @@ void mouseScroll(GLFWwindow* window, double x, double y) {
 void createScene()
 {
     scene = new Scene();
-    Plane* plane = new Plane(glm::vec3(0.0f, 0.0f, 10.0f));
-    plane->generatePlane(2.0f, 2.0f);
 
+    Plane* wall = new Plane(glm::vec3(0.0f, 0.0f, 0.0f), "wall");
+    wall->setColor(glm::vec4(0.7f, 0.7f, 0.9f, 1.0f));
+    wall->generateCube(2.0f, 2.0f, 0.5f);
+    scene->addGeometry(wall, 0.0, 0);
+    
+    Plane* groundPlane = new Plane(glm::vec3(0.0f, -1.01f, 0.0f), "groundplane");
+    groundPlane->generatePlaneXZ(100.0f, 100.0f);
+    scene->addGeometry(groundPlane, 0.0f, 0);
+    scene->initialize();
+    
+}
+void fracturePlane(){
+    scene->deleteGeometryByName("wall");
+    Plane* plane = new Plane(glm::vec3(0.0f, 0.0f, 0.0f), "voronoiPlane");
+    plane->generatePlaneXY(2.0f, 2.0f);
     VoronoiDiagram* vd = new VoronoiDiagram(plane);
 
     switch (pattern)
@@ -140,15 +153,8 @@ void createScene()
     {
         scene->addGeometry(g, 1.0f, 1);
     }
-
-    Plane* groundPlane = new Plane(glm::vec3(0.0f, -1.1f, 0.0f));
-    groundPlane->generateCube(10.0f, 10.0f, 10);
-    // groundPlane->rotateX(-glm::pi<float>() / 2.0f);
-    scene->addGeometry(groundPlane, 0.0f, 0);
-    scene->initialize();
     delete vd;
 }
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
@@ -181,6 +187,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             case GLFW_KEY_C:
                 randomColor = !randomColor;
                 createScene();
+                break;
+            case GLFW_KEY_F:
+                fracturePlane();
+                scene->applyForce(glm::vec3(0,0,0), 0.1);
                 break;
             default:
                 break;

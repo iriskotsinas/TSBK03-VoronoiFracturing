@@ -57,10 +57,33 @@ void BulletPhysics::addRigidBody(const Geometry *geometry, const float mass, con
 
     delete hull;
 }
+void BulletPhysics::deleteRigidBodyAt(unsigned int i){
+    btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+    btRigidBody* body = btRigidBody::upcast(obj);
 
+    if (body && body->getMotionState()) {
+        delete body->getMotionState();
+    }
+
+    m_dynamicsWorld->removeCollisionObject( obj );
+    delete obj;
+
+    m_rigidBodiesList.erase(m_rigidBodiesList.begin()+i);
+    m_rigidBodiesList.shrink_to_fit();
+}
 void BulletPhysics::stepSimulation()
 {
     double deltaT = glfwGetTime() - prevTime;
     m_dynamicsWorld->stepSimulation(0.01, 10);
     prevTime = glfwGetTime();
+}
+void BulletPhysics::applyForce(glm::vec3 pos, float power){
+    for(auto b : m_rigidBodiesList){
+        const btTransform worldTransform = b->getWorldTransform();
+        glm::vec3 centralMassPos = glm::vec3(b->getCenterOfMassPosition()[0], b->getCenterOfMassPosition()[1], b->getCenterOfMassPosition()[2]);
+        glm::vec3 forceDir = glm::normalize(centralMassPos - pos);
+        float distance = glm::length(centralMassPos - pos);
+        glm::vec3 force = (forceDir / distance) * power;
+        b->applyCentralImpulse(btVector3(force.x, force.y, force.z));
+    }
 }

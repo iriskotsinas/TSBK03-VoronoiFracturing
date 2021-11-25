@@ -41,6 +41,10 @@ public:
     }
     void stepSimulation();
     void resetCamera();
+    void deleteGeometryByName(std::string name);
+    void applyForce(glm::vec3 pos, float power){
+        physicsWorld->applyForce(pos, power);
+    }
 
 private:
     bool isPressed = false;

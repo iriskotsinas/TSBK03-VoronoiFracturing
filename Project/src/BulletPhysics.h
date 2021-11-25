@@ -11,6 +11,8 @@ public:
     void addRigidBody(const Geometry* geometry, const float mass, const unsigned int type);
     void stepSimulation();
     btRigidBody* getRigidBodyAt(unsigned int i){return m_rigidBodiesList[i];}
+    void deleteRigidBodyAt(unsigned int i);
+    void applyForce(glm::vec3 pos, float power);
 private:
     btDefaultCollisionConfiguration* m_collisionConfiguration;
     btCollisionDispatcher* m_dispatcher;

@@ -64,5 +64,5 @@ class HalfEdgeMesh : public Geometry{
             mEdges.push_back((jcv_graphedge*)e);
         }
         void setSiteCenter(glm::vec3 s) { siteCenter = s; }
-        void setColor(glm::vec4 c) { mColor = c; }
+        
 };

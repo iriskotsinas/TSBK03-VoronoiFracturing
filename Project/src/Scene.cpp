@@ -22,7 +22,7 @@
 
 Scene::Scene()
 {
-    physicsWorld = new BulletPhysics(-1.82f);
+    physicsWorld = new BulletPhysics(-5.82f);
 }
 Scene::~Scene(){
     for(auto g : mGeometries){
@@ -201,4 +201,14 @@ void Scene::resetCamera()
 
     glm::quat identityQuat = glm::quat();
     mCamera.orientation = identityQuat;
+}
+void Scene::deleteGeometryByName(std::string name){
+    for(int i = 0; i < mGeometries.size(); i++){
+        if(mGeometries[i]->getName() == name){
+            delete mGeometries[i];
+            mGeometries.erase(mGeometries.begin() + i);
+            physicsWorld->deleteRigidBodyAt(i);
+        }
+    }
+
 }

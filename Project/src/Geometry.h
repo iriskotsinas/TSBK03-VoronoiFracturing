@@ -82,6 +82,7 @@ class Geometry{
         void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
         void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
         void addNormal(glm::vec3 n) { mOrderedNormalList.push_back(n); }
+        void setColor(glm::vec4 c) { mColor = c; }
         void setType(const unsigned int t){type = t;}
         void updateMesh(glm::mat4 transMat){
             // mTransformedVertexList.clear();
@@ -149,6 +150,10 @@ class Geometry{
         {
             mObjName = s;
         }
+        std::string getName()
+        {
+           return mObjName;
+        }
 
         int getVertCount() const
         {
@@ -197,12 +202,6 @@ class Geometry{
             x.second = max_x;
             y.first = min_y;
             y.second = max_y;
-        }
-
-        void rotateX(float radians)
-        {
-            mTransMat = glm::rotate(mTransMat, radians, glm::vec3(1.0f, 0.0f, 0.0f));
-            
         }
 
         void calculateGeometryWorldPosition()

@@ -41,8 +41,6 @@ class HalfEdgeMesh : public Geometry{
      private:
         // The edges of the mesh
         std::vector<jcv_graphedge*> mEdges;
-        // Vertex list in drawing order
-        //std::vector<glm::vec3> mOrderedVertexList;
         glm::vec3 siteCenter;
 
     public:
@@ -51,15 +49,9 @@ class HalfEdgeMesh : public Geometry{
         ~HalfEdgeMesh();
         void extrude();
         void generatePlane(float width, float height);
-        void initialize(glm::vec3);
-
-        void render(std::vector<glm::mat4x4 >);
-
+        void initialize() override;
         glm::mat4 getTransMat() { return mTransMat; }
         void buildRenderData();
-
-        //void addVertex(glm::vec3 v) { mOrderedVertexList.push_back(v); }
-        //void addColor(glm::vec4 c) { mOrderedColorList.push_back(c); }
         void addHalfEdge(const jcv_graphedge* e) {
             mEdges.push_back((jcv_graphedge*)e);
         }

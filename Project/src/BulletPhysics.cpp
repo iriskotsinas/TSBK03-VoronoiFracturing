@@ -50,7 +50,7 @@ void BulletPhysics::addRigidBody(const Geometry *geometry, const float mass, con
     btRigidBody::btRigidBodyConstructionInfo shapeRigidBodyCI(mass, motionState, shape, inertia);
     btRigidBody *body = new btRigidBody(shapeRigidBodyCI);
     body->setRestitution(0);
-    // body->setFriction(btScalar(5.0f));
+
     // Add rigid body to dynamic world
     m_dynamicsWorld->addRigidBody(body);
     m_rigidBodiesList.push_back(body);
@@ -73,13 +73,16 @@ void BulletPhysics::deleteRigidBodyAt(unsigned int i){
 }
 void BulletPhysics::stepSimulation()
 {
-    double deltaT = glfwGetTime() - prevTime;
+    //workaround for allowing pausing and resetting the scene
     m_dynamicsWorld->stepSimulation(0.01, 10);
-    prevTime = glfwGetTime();
+
+    //more accurate
+    // double deltaT = glfwGetTime() - prevTime;
+    // prevTime = glfwGetTime();
+    //m_dynamicsWorld->stepSimulation(deltaT, 10);
 }
 void BulletPhysics::applyForce(glm::vec3 pos, float power){
     for(auto b : m_rigidBodiesList){
-        const btTransform worldTransform = b->getWorldTransform();
         glm::vec3 centralMassPos = glm::vec3(b->getCenterOfMassPosition()[0], b->getCenterOfMassPosition()[1], b->getCenterOfMassPosition()[2]);
         glm::vec3 forceDir = glm::normalize(centralMassPos - pos);
         float distance = glm::length(centralMassPos - pos);

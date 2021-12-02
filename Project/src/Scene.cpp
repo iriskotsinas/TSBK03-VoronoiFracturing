@@ -32,9 +32,6 @@ Scene::~Scene(){
 }
 void Scene::initialize()
 {
-    // Init the lightsource parameters
-    mPointLight.position = glm::vec3(0.0f, 0.0f, 3.0f);
-    mPointLight.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     mCamera.projectionMatrix = glm::perspective(
         mCamera.fov,          // field of view, 45.0
         mCamera.aspectRatio,  // 16/9
@@ -49,8 +46,6 @@ void Scene::initialize()
     mSceneMatrices.push_back(glm::mat4x4());
     mSceneMatrices.push_back(glm::mat4x4());
 
-    // for (std::vector<Geometry *>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
-        // (*it)->initialize(mPointLight.position);
     std::cout<<"Scene initialized..."<<std::endl;
 }
 
@@ -62,7 +57,7 @@ void Scene::setCameraZoom(float x, float y)
 
 void Scene::addGeometry(Geometry *G, float mass, unsigned int type)
 {
-    G->initialize(glm::vec3());
+    G->initialize();
     G->setType(type);
     G->calculateGeometryWorldPosition();
     mGeometries.push_back(G);
@@ -91,9 +86,6 @@ void Scene::render()
     glEnable( GL_CULL_FACE );
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    // glDepthFunc(GL_NEVER);
-    glEnable(GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     mCamera.viewMatrix = glm::lookAt(
             glm::vec3(0.0f, 0.0f, 3.0f+mCamera.zoom),
@@ -102,30 +94,18 @@ void Scene::render()
                     glm::mat4_cast(mCamera.orientation);
 
     glm::mat4 modelMatrix;
-    // std::cout<<"Scene Objects: "<<mGeometries.size()<<std::endl;
-    // mCamera.viewMatrix = glm::rotate(mCamera.viewMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f));
     // render Geometries in scene
     for (std::vector<Geometry*>::iterator it = mGeometries.begin(); it != mGeometries.end(); ++it)
     {
-        // The scene modelmatrix is nothing atm, the geometries will have their own model transforms
         modelMatrix = (*it)->getTransMat();
-        // (*it)->setTransMat(glm::rotate(modelMatrix, 0.01f, glm::vec3(0.0f,1.0f,0.0f)));
-        // Construct MVP matrix
+        // MVP matrix
         mSceneMatrices[I_MVP] = toMatrix4x4Row(mCamera.projectionMatrix * mCamera.viewMatrix * modelMatrix);
-
-        // Modelview Matrix, apply camera transforms here as well
+        // Modelview Matrix
         mSceneMatrices[I_MV] = toMatrix4x4Row(mCamera.viewMatrix * modelMatrix);
-
-        // Modelview Matrix for our light
-        mSceneMatrices[I_MV_LIGHT] = toMatrix4x4Row(mCamera.viewMatrix * modelMatrix);
-
-        // Normal Matrix, used for normals in our shading
-        mSceneMatrices[I_NM] = toMatrix4x4Row(glm::inverseTranspose(glm::mat4(mCamera.viewMatrix * modelMatrix)));
 
         (*it)->render(mSceneMatrices);
     }
 
-    glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 }
@@ -142,8 +122,6 @@ void Scene::stepSimulation(){
             float glTransArr[16];
             physTransMat.getOpenGLMatrix(glTransArr);
             mGeometries[i]->setTransMat(glm::make_mat4(glTransArr));
-            // mGeometries[i]->updateMesh(glm::make_mat4(glTransArr));
-            // updatePreComputedVoronoiPattern(mGeometries[i]->getObjName(), toGlmMat4(glTransArr));
         }
     }
 
@@ -203,7 +181,7 @@ void Scene::resetCamera()
     mCamera.orientation = identityQuat;
 }
 void Scene::deleteGeometryByName(std::string name){
-    for(int i = 0; i < mGeometries.size(); i++){
+    for(unsigned int i = 0; i < mGeometries.size(); i++){
         if(mGeometries[i]->getName() == name){
             delete mGeometries[i];
             mGeometries.erase(mGeometries.begin() + i);

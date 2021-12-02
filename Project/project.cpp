@@ -16,10 +16,8 @@
 		#include <GL/glut.h>
 	#else
 // Linux
-		// #include <stdio.h>
+
 		#include <GL/gl.h>
-		// #include "MicroGlut.h"
-		// #include <GL/glut.h>
 	#endif
 #endif
 
@@ -30,7 +28,7 @@
 
 #include "src/Scene.h"
 #include "src/VoronoiDiagram.h"
-#include "src/Plane.h"
+#include "src/Shape.h"
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
@@ -38,7 +36,7 @@ Scene* scene;
 int pattern = 0;
 int numPoints = 50;
 bool randomColor = false;
-
+bool paused = false;
 GLFWwindow* InitWindow()
 {
     // Initialize GLFW
@@ -116,12 +114,12 @@ void createScene()
 {
     scene = new Scene();
 
-    Plane* wall = new Plane(glm::vec3(0.0f, 0.0f, 0.0f), "wall");
+    Shape* wall = new Shape(glm::vec3(0.0f, 0.0f, 0.0f), "wall");
     wall->setColor(glm::vec4(0.7f, 0.7f, 0.9f, 1.0f));
     wall->generateCube(2.0f, 2.0f, 0.5f);
     scene->addGeometry(wall, 0.0, 0);
     
-    Plane* groundPlane = new Plane(glm::vec3(0.0f, -1.01f, 0.0f), "groundplane");
+    Shape* groundPlane = new Shape(glm::vec3(0.0f, -1.01f, 0.0f), "groundplane");
     groundPlane->generatePlaneXZ(100.0f, 100.0f);
     scene->addGeometry(groundPlane, 0.0f, 0);
     scene->initialize();
@@ -129,7 +127,7 @@ void createScene()
 }
 void fracturePlane(){
     scene->deleteGeometryByName("wall");
-    Plane* plane = new Plane(glm::vec3(0.0f, 0.0f, 0.0f), "voronoiPlane");
+    Shape* plane = new Shape(glm::vec3(0.0f, 0.0f, 0.0f), "voronoiPlane");
     plane->generatePlaneXY(2.0f, 2.0f);
     VoronoiDiagram* vd = new VoronoiDiagram(plane);
 
@@ -192,6 +190,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                 fracturePlane();
                 scene->applyForce(glm::vec3(0,0,0), 0.1);
                 break;
+            case GLFW_KEY_ENTER:
+                paused = !paused;
+                break;
             default:
                 break;
         }
@@ -215,14 +216,11 @@ int main( void )
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            // renderer.Clear();
-            // shader.Bind();
-            // shader.SetUniform4f("u_Color", 1.0, 1.0, 1.0, 1.0);
-            // glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-            // renderer.Draw(va, ib, shader);
             
             scene->render();
-            scene->stepSimulation();
+            if(!paused){
+                scene->stepSimulation();
+            }
             // Swap buffers
             glFlush();
             glfwSwapBuffers(window);
@@ -230,7 +228,6 @@ int main( void )
         } // Check if the ESC key was pressed or the window was closed
         while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
                 glfwWindowShouldClose(window) == 0 );
-    // delete scene;
     }
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

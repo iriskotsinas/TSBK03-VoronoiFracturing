@@ -29,8 +29,6 @@ class VoronoiDiagram
         void sampleCrackPoints(unsigned int n);
         void sampleHolePoints(unsigned int n);
         std::vector<Geometry*> fracture(bool randomColors);
-        void buildLines();
-        // glm::vec3 enforceBoundaries(glm::vec3 p);
     private:
         std::pair< float, float> x,y;
         std::vector<jcv_point> points;

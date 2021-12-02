@@ -8,7 +8,6 @@ VoronoiDiagram::VoronoiDiagram(Geometry* _mesh)
 
 void VoronoiDiagram::sampleUniformPoints(unsigned int n)
 {
-    // std::cout<<"xp: "<<x.first<<", yp: "<<x.second<<std::endl;
     std::random_device rd;
     std::mt19937 e2(rd());
     std::uniform_real_distribution<> dist1(x.first, x.second);
@@ -19,7 +18,6 @@ void VoronoiDiagram::sampleUniformPoints(unsigned int n)
         point.x = dist1(e2);
         point.y = dist2(e2);
         points.push_back(point);
-        // std::cout<<"P: x: "<<dist1(e2)<<" , y: "<<point.y<<std::endl;
     }
     std::cout<<"VoronoiDiagram uniform points sampled"<<std::endl;
 }
@@ -27,7 +25,6 @@ void VoronoiDiagram::sampleUniformPoints(unsigned int n)
 void VoronoiDiagram::sampleCrackPoints(unsigned int n)
 {
     float middle = (glm::abs(x.second) - glm::abs(x.first)) / 2;
-    // std::cout<<"xp: "<<x.first<<", yp: "<<x.second<<std::endl;
     std::random_device rd;
     std::mt19937 e2(rd());
     std::uniform_real_distribution<> dist1(middle - 0.2, middle + 0.2);
@@ -38,7 +35,6 @@ void VoronoiDiagram::sampleCrackPoints(unsigned int n)
         point.x = dist1(e2);
         point.y = dist2(e2);
         points.push_back(point);
-        // std::cout<<"P: x: "<<dist1(e2)<<" , y: "<<point.y<<std::endl;
     }
     std::cout<<"VoronoiDiagram crack points sampled"<<std::endl;
 }
@@ -66,7 +62,6 @@ std::vector<Geometry*> VoronoiDiagram::fracture(bool randomColors)
 {
 
     //Fortune Sweep
-
     jcv_point j_points[points.size()];
 
     for (size_t i = 0; i < points.size(); i++)

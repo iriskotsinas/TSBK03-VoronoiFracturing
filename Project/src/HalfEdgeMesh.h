@@ -41,14 +41,13 @@ class HalfEdgeMesh : public Geometry{
      private:
         // The edges of the mesh
         std::vector<jcv_graphedge*> mEdges;
+
         glm::vec3 siteCenter;
 
     public:
         HalfEdgeMesh(std::string s);
-
         ~HalfEdgeMesh();
         void extrude();
-        void generatePlane(float width, float height);
         void initialize() override;
         glm::mat4 getTransMat() { return mTransMat; }
         void buildRenderData();

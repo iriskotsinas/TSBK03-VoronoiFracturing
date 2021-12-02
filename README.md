@@ -1,18 +1,18 @@
 # VoronoiFracturing
 TSBK03 Project
 
-#Required libraries
+## Required libraries
 glfw
 glew
 bullet
 
 
-#Build and run
+## Build and run
 make -B
 ./project
 
 
-#Controls
+## Controls
 
 F: Fracture and play simulation
 
@@ -30,7 +30,7 @@ ARROW-UP: Increase number of points by 10
 
 ARROW-DOWN: Decrease number of points by 10
 
-#Makefile Linux
+## Makefile Linux
 INCLUDE := -I./src -I../common -I"/usr/include/bullet" -I"/usr/include/bullet"
 
 LIBS := -L -lstdc++ -lX11 -lm -lGL -lglfw -lGLEW
